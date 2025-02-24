@@ -1,13 +1,16 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using ServidorApiRestaurante.Model;
 
+using System.Text.Json;
+using System.Text.Json.Serialization;
+
 namespace ServidorApiRestaurante.Controllers
 {
     [ApiController]
     [Route("cliente")] // Ruta: dirección/cliente/   https://localhost:7233/
     public class ClienteController : ControllerBase
     {
-        [HttpGet]
+        /*[HttpGet]
         [Route("listar")]
         public dynamic listarCliente()
         {
@@ -31,9 +34,9 @@ namespace ServidorApiRestaurante.Controllers
             };
             return clientes;
             
-        }
+        }*/
 
-        [HttpGet]
+        /*[HttpGet]
         [Route("listarxid")]
         public dynamic listarClientexid(string _id)
         {
@@ -44,12 +47,14 @@ namespace ServidorApiRestaurante.Controllers
                 edad = "23",
                 nombre = "Miguel Mantilla"
             };
-        }
+        }*/
 
         [HttpPost]
         [Route("guardar")]
         public dynamic guardarCliente(Cliente cliente)
         {
+            Cliente cliente1 = new Cliente("2", "Carlos", "23", "Carlos@gmail.com");
+            return JsonSerializer.Serialize(cliente1);
             cliente.id = "3";
             return new
             {
@@ -70,5 +75,67 @@ namespace ServidorApiRestaurante.Controllers
                 result = cliente
             };
         }
+
+        [HttpDelete]
+        [Route("borrarxid/{id}")]
+        public dynamic borrarClientexid(string id)
+        {
+            if (id.CompareTo("1") == 0)
+            {
+                return new
+                {
+                    result = "Cliente con id " + id + " eliminado."
+                };
+            }
+            else
+            {
+                return new
+                {
+                    result = "Cliente con id " + id + " no eliminado."
+                };
+            }
+                
+        }
+
+        /*[HttpPut]
+        [Route("actualizarClientexid/{id}")]
+        public dynamic actualizarClientexid(string id, [FromBody] string clienteid)
+        {
+            
+            if (id.CompareTo("1") == 0)
+            {
+                return new
+                {
+                    result = "Cliente con id " + id + " actualizado."
+                };
+            }
+            else
+            {
+                return new
+                {
+                    result = "Cliente con id " + id + " no actualizado."
+                };
+            }
+        }*/
+
+        /*[HttpPatch]
+        [Route("actualizarClientexidValorEspecífico/{id}")]
+        public dynamic actualizarClientexidValorEspecífico(string id)
+        {
+            if (id.CompareTo("1") == 0)
+            {
+                return new
+                {
+                    result = "Cliente con id " + id + " actualizado valor específico."
+                };
+            }
+            else
+            {
+                return new
+                {
+                    result = "Cliente con id " + id + " no actualizado valor específico."
+                };
+            }
+        }*/
     }
 }
