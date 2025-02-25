@@ -3,6 +3,7 @@ using ServidorApiRestaurante.Model;
 
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace ServidorApiRestaurante.Controllers
 {
@@ -10,11 +11,19 @@ namespace ServidorApiRestaurante.Controllers
     [Route("cliente")] // Ruta: dirección/cliente/   https://localhost:7233/
     public class ClienteController : ControllerBase
     {
-        /*[HttpGet]
-        [Route("listar")]
-        public dynamic listarCliente()
+        [HttpGet]
+        [Route("existe/{nombre}")]
+        public dynamic existeCliente(string nombre)
         {
-            List<Cliente> clientes = new List<Cliente>()
+            List<Cliente> clientes = new List<Cliente>();
+            List<string> restaurantesEjemplo = new List<string>();
+            restaurantesEjemplo.Add("Restaurante1");
+            Cliente c = new Cliente(nombre, "gsdgsgsag", "empleado", "0", restaurantesEjemplo);
+            restaurantesEjemplo.Add("Restaurante2");
+            Cliente c2 = new Cliente("Ramos", "sgdagsdgs", "empleado", "1",restaurantesEjemplo);
+            clientes.Add(c);
+            clientes.Add(c2);
+            /*List<Cliente> clientes = new List<Cliente>()
             {
                 new Cliente
                 {
@@ -31,10 +40,49 @@ namespace ServidorApiRestaurante.Controllers
                     edad = "23",
                     nombre = "Miguel Mantilla"
                 }
-            };
+            };*/
+            return clientes;
+
+        }
+        [HttpGet]
+        [Route("listar")]
+        public dynamic listarCliente()
+        {
+            
+
+            List<Cliente> clientes = new List<Cliente>();
+            List<string> restaurantesEjemplo = new List<string>();
+            restaurantesEjemplo.Add("Restaurante1");
+            restaurantesEjemplo.Add("Restaurante2");
+            Cliente c = new Cliente("Fernando", "gsdgsgsag", "empleado", "0", restaurantesEjemplo);
+            List<string> restaurantesEjemplo2 = new List<string>();
+            restaurantesEjemplo2.Add("Restaurante3");
+            restaurantesEjemplo2.Add("Restaurante4");
+            restaurantesEjemplo2.Add("Restaurante5");
+            Cliente c2 = new Cliente("Ramos", "sgdagsdgs", "empleado", "1", restaurantesEjemplo2);
+            clientes.Add(c);
+            clientes.Add(c2);
+            /*List<Cliente> clientes = new List<Cliente>()
+            {
+                new Cliente
+                {
+                    id = "1",
+                    correo = "google@gmail.com",
+                    edad = "19",
+                    nombre = "Bernardo Peña"
+
+                },
+                new Cliente
+                {
+                    id = "1",
+                    correo = "miguelgoogle@gmail.com",
+                    edad = "23",
+                    nombre = "Miguel Mantilla"
+                }
+            };*/
             return clientes;
             
-        }*/
+        }
 
         /*[HttpGet]
         [Route("listarxid")]
@@ -53,15 +101,17 @@ namespace ServidorApiRestaurante.Controllers
         [Route("guardar")]
         public dynamic guardarCliente(Cliente cliente)
         {
-            Cliente cliente1 = new Cliente("2", "Carlos", "23", "Carlos@gmail.com");
-            return JsonSerializer.Serialize(cliente1);
-            cliente.id = "3";
+            List<string> restaurantesEjemplo = new List<string>();
+            restaurantesEjemplo.Add("Restaurante1");
+            Cliente c = new Cliente("Fernando", "gsdgsgsag", "empleado", "0", restaurantesEjemplo);
+            return JsonSerializer.Serialize(c);
+            /*cliente.id = "3";
             return new
             {
                 success = true,
                 message = "cliente registrado",
                 result = cliente
-            };
+            };*/
         }
 
         [HttpPost]

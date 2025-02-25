@@ -2,17 +2,21 @@
 {
     public class Cliente
     {
-        public string id { get; set; }
         public string nombre { get; set; }
-        public string edad { get; set; }
-        public string correo { get; set; }
+        public string contraseña { get; set; }
+        public string rol { get; set; }
+        public string cantMapas { get; set; }
+        public List<string> restaurantes { get; set; }
 
-        public Cliente(string id, string nombre, string edad, string correo)
+        public Cliente(string nombre, string contraseña, string rol, string cantMapas, List<string> restaurantes)
         {
-            this.id = id;
             this.nombre = nombre;
-            this.edad = edad;
-            this.correo = correo;
+            this.contraseña = contraseña;
+            this.rol = rol;
+            this.cantMapas = cantMapas;
+            this.restaurantes = restaurantes;
         }
+
+
     }
 }
