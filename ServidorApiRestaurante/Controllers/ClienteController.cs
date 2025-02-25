@@ -1,16 +1,40 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using ServidorApiRestaurante.Model;
-
+using System.Diagnostics;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace ServidorApiRestaurante.Controllers
-{
+{        
     [ApiController]
     [Route("cliente")] // Ruta: dirección/cliente/   https://localhost:7233/
     public class ClienteController : ControllerBase
     {
+        SQLiteController sQLiteController;
+
+        // La API se conecta a la BDD
+        [HttpGet]
+        [Route("cbdd")]
+        public dynamic conectarConLaBDD()
+        {
+            // Obtén la ruta absoluta de la carpeta 'base_datos' dentro del proyecto
+            string folderPath = Path.Combine(Directory.GetCurrentDirectory(), "BDD"); // Ruta en la carpeta del ejecutable
+
+            // La ruta completa al archivo de la base de datos
+            string rutaBDDFichero = Path.Combine(folderPath, "miBaseDeDatos.db");
+
+            Trace.WriteLine("DataBasePath: " + rutaBDDFichero); //Mostrar contenido en salida
+            
+            sQLiteController = new SQLiteController(rutaBDDFichero);
+            Trace.WriteLine("A: ");
+            sQLiteController.CreateDatabase();
+            Trace.WriteLine("B: ");
+            return new { result = true };
+
+        }
+
+
         [HttpGet]
         [Route("existe/{nombre}")]
         public dynamic existeCliente(string nombre)
@@ -44,6 +68,7 @@ namespace ServidorApiRestaurante.Controllers
             return clientes;
 
         }
+
         [HttpGet]
         [Route("listar")]
         public dynamic listarCliente()

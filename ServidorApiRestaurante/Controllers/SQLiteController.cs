@@ -1,13 +1,14 @@
 ﻿using Microsoft.AspNetCore.Mvc.RazorPages;
 using ServidorApiRestaurante.Model;
 using System.Data.SQLite;
+using System.Diagnostics;
 using System.Xml.Linq;
 
 namespace ServidorApiRestaurante.Controllers
 {
     public class SQLiteController
     {
-        private string connectionString;
+        private static string connectionString;
 
         public SQLiteController(string databasePath)
         {
@@ -17,22 +18,48 @@ namespace ServidorApiRestaurante.Controllers
 
         public void CreateDatabase()
         {
-            // Conexión y creación de la base de datos si no existe
-            using (var connection = new SQLiteConnection(connectionString))
+            // Obtener la ruta de la base de datos desde la cadena de conexión
+            string dbFilePath = new SQLiteConnectionStringBuilder(connectionString).DataSource;
+
+            // Verificar si la base de datos ya existe
+            if (File.Exists(dbFilePath))
             {
-                connection.Open();
-
-                string createTableQuery = @"CREATE TABLE IF NOT EXISTS Users (
-                                            Id INTEGER PRIMARY KEY AUTOINCREMENT,
-                                            Name TEXT NOT NULL,
-                                            Age INTEGER NOT NULL
-                                          );";
-
-                using (var command = new SQLiteCommand(createTableQuery, connection))
-                {
-                    command.ExecuteNonQuery();
-                }
+                Trace.WriteLine("La base de datos ya existe. No es necesario crearla.");
+                return; // Salimos del método si la base de datos ya existe
+            }else
+            {
+                Trace.WriteLine("La base de datos no existe. Es necesario crearla.");
+                return; //Igualmente, pongo return para pruebas. En el futuro quitar el return
             }
+
+
+                // Se crea una conexión a la base de datos SQLite usando la cadena de conexión definida en "connectionString".
+                // Si el archivo de la base de datos no existe en la ruta especificada, SQLite lo creará automáticamente al abrir la conexión.
+                using (var connection = new SQLiteConnection(connectionString))
+                {
+                    // Abre la conexión con la base de datos.
+                    // Si la base de datos no existe, este paso la creará en la ubicación especificada en connectionString.
+                    connection.Open();
+
+                    // Defino la consulta SQL para crear la tabla "Users" si aún no existe.
+                    string createTableQuery = @"
+            CREATE TABLE IF NOT EXISTS Users (
+                Id INTEGER PRIMARY KEY AUTOINCREMENT,  -- Identificador único de cada usuario, se genera automáticamente.
+                Name TEXT NOT NULL UNIQUE,                   -- Nombre del usuario, obligatorio y único.
+                Password TEXT NOT NULL,                      -- Contraseña del usuario, obligatoria.
+                Rol TEXT NOT NULL,                           -- Rol del usuario, obligatoria.
+                CantMapas INTEGER NOT NULL,                  -- CantMapas del usuario, obligatorio.
+                NombresRestaurantes TEXT NOT NULL            -- NombresRestaurantes del usuario, obligatorio.
+            );";
+
+                    // Se crea un comando SQL que ejecutará la consulta de creación de la tabla.
+                    using (var command = new SQLiteCommand(createTableQuery, connection))
+                    {
+                        // Ejecuta la consulta SQL. Como es un comando que no devuelve resultados (no es una consulta SELECT),
+                        // usamos ExecuteNonQuery().
+                        command.ExecuteNonQuery();
+                    }
+                } // Al salir del bloque "using", la conexión y los recursos se liberan automáticamente.
         }
 
         // Insertar un nuevo usuario
