@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc.RazorPages;
 using ServidorApiRestaurante.Model;
+using ServidorApiRestaurante.Models;
 using System.Data.SQLite;
 using System.Diagnostics;
 using System.Xml.Linq;
@@ -79,9 +80,9 @@ namespace ServidorApiRestaurante.Controllers
         }
 
         // Obtener todos los usuarios
-        public List<Cliente> GetClientes()
+        public List<Trabajador> GetClientes()
         {
-            var users = new List<Cliente>();
+            var users = new List<Trabajador>();
             using (var connection = new SQLiteConnection(connectionString))
             {
                 connection.Open();
@@ -92,17 +93,13 @@ namespace ServidorApiRestaurante.Controllers
                     {
                         while (reader.Read())
                         {
-                            //Id = reader.GetInt32(0),
+                            int id = reader.GetInt32(0);
                             string name = reader.GetString(1);
                             string contraseña = reader.GetString(2);
-                            string rol = reader.GetString(3);
-                            string cantMapas = reader.GetString(4);
-                            string mapas = reader.GetString(5);
+                            int rol_Id = reader.GetInt32(0);
+                            int restaurante_Id = reader.GetInt32(0);
 
-                            string [] arrayListaMapas = mapas.Trim().Split(","); //El valor de la cadena mapas, será algo como: "nombreMapa1,nombreMapa2,etc"
-                            List<string> listaMapas = arrayListaMapas.ToList();
-
-                            users.Add(new Cliente(name, contraseña, rol, cantMapas, listaMapas));
+                            users.Add(new Trabajador(id, name, contraseña, new Rol(), new Restaurante()));
                         }
                     }
                 }

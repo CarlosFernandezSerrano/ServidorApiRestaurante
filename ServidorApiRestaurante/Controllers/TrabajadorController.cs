@@ -9,9 +9,9 @@ namespace ServidorApiRestaurante.Controllers
 {        
     [ApiController]
     [Route("cliente")] // Ruta: dirección/cliente/   https://localhost:7233/
-    public class ClienteController : ControllerBase
+    public class TrabajadorController : ControllerBase
     {
-        SQLiteController sQLiteController;
+        //SQLiteController sQLiteController;
 
         // La API se conecta a la BDD
         [HttpGet]
@@ -26,9 +26,9 @@ namespace ServidorApiRestaurante.Controllers
 
             Trace.WriteLine("DataBasePath: " + rutaBDDFichero); //Mostrar contenido en salida
             
-            sQLiteController = new SQLiteController(rutaBDDFichero);
+            //sQLiteController = new SQLiteController(rutaBDDFichero);
             Trace.WriteLine("A: ");
-            sQLiteController.CreateDatabase();
+            //sQLiteController.CreateDatabase();
             Trace.WriteLine("B: ");
             return new { result = true };
 
@@ -39,14 +39,12 @@ namespace ServidorApiRestaurante.Controllers
         [Route("existe/{nombre}")]
         public dynamic existeCliente(string nombre)
         {
-            List<Cliente> clientes = new List<Cliente>();
-            List<string> restaurantesEjemplo = new List<string>();
-            restaurantesEjemplo.Add("Restaurante1");
-            Cliente c = new Cliente(nombre, "gsdgsgsag", "empleado", "0", restaurantesEjemplo);
-            restaurantesEjemplo.Add("Restaurante2");
-            Cliente c2 = new Cliente("Ramos", "sgdagsdgs", "empleado", "1",restaurantesEjemplo);
+            /*List<Trabajador> clientes = new List<Trabajador>();
+            Trabajador c = new Trabajador(nombre, "gsdgsgsag", 1, 1);
+            Trabajador c2 = new Trabajador(nombre, "gsdgsgsag", 1, 1);
             clientes.Add(c);
-            clientes.Add(c2);
+            clientes.Add(c2);*/
+            return new { sucess = true };
             /*List<Cliente> clientes = new List<Cliente>()
             {
                 new Cliente
@@ -65,7 +63,7 @@ namespace ServidorApiRestaurante.Controllers
                     nombre = "Miguel Mantilla"
                 }
             };*/
-            return clientes;
+            //return clientes;
 
         }
 
@@ -73,20 +71,12 @@ namespace ServidorApiRestaurante.Controllers
         [Route("listar")]
         public dynamic listarCliente()
         {
-            
-
-            List<Cliente> clientes = new List<Cliente>();
-            List<string> restaurantesEjemplo = new List<string>();
-            restaurantesEjemplo.Add("Restaurante1");
-            restaurantesEjemplo.Add("Restaurante2");
-            Cliente c = new Cliente("Fernando", "gsdgsgsag", "empleado", "0", restaurantesEjemplo);
-            List<string> restaurantesEjemplo2 = new List<string>();
-            restaurantesEjemplo2.Add("Restaurante3");
-            restaurantesEjemplo2.Add("Restaurante4");
-            restaurantesEjemplo2.Add("Restaurante5");
-            Cliente c2 = new Cliente("Ramos", "sgdagsdgs", "empleado", "1", restaurantesEjemplo2);
+            /*List<Trabajador> clientes = new List<Trabajador>();
+            Trabajador c = new Trabajador(0, "Fernando", "gsdgsgsag", 1, 1);
+            Trabajador c2 = new Trabajador(0, "Ramos", "gsdgsgsag", 1, 1);
             clientes.Add(c);
-            clientes.Add(c2);
+            clientes.Add(c2);*/
+            return new { sucess = true };
             /*List<Cliente> clientes = new List<Cliente>()
             {
                 new Cliente
@@ -105,7 +95,7 @@ namespace ServidorApiRestaurante.Controllers
                     nombre = "Miguel Mantilla"
                 }
             };*/
-            return clientes;
+            //return clientes;
             
         }
 
@@ -124,12 +114,12 @@ namespace ServidorApiRestaurante.Controllers
 
         [HttpPost]
         [Route("guardar")]
-        public dynamic guardarCliente(Cliente cliente)
+        public dynamic guardarCliente(Trabajador cliente)
         {
-            List<string> restaurantesEjemplo = new List<string>();
-            restaurantesEjemplo.Add("Restaurante1");
-            Cliente c = new Cliente("Fernando", "gsdgsgsag", "empleado", "0", restaurantesEjemplo);
-            return JsonSerializer.Serialize(c);
+            /*List<string> restaurantesEjemplo = new List<string>();
+            Trabajador c = new Trabajador(0, "Fernando", "gsdgsgsag", 1, 1);
+            return JsonSerializer.Serialize(c);*/
+            return new { sucess = true };
             /*cliente.id = "3";
             return new
             {
@@ -141,7 +131,7 @@ namespace ServidorApiRestaurante.Controllers
 
         [HttpPost]
         [Route("eliminar")]
-        public dynamic eliminarCliente(Cliente cliente)
+        public dynamic eliminarCliente(Trabajador cliente)
         {
             return new
             {

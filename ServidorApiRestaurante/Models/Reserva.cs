@@ -1,7 +1,6 @@
 ﻿namespace ServidorApiRestaurante.Models
 {
-    public class Cliente
+    public class Reserva
     {
-
     }
 }
