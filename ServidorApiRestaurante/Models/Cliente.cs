@@ -1,40 +1,29 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-using System.ComponentModel.DataAnnotations;
-
+﻿
 namespace ServidorApiRestaurante.Models
 {
     public class Cliente
     {
-        [Key] // Clave primaria
         public virtual int Id { get; set; }
-
-        [Required] // La propiedad 'Nombre' es obligatoria
-        [Column(TypeName = "TEXT")]
         public virtual string Nombre { get; set; } = string.Empty;
-
-        [Required] // La propiedad 'Dni' es obligatoria
-        [Column(TypeName = "TEXT")]
         public virtual string Dni { get; set; } = string.Empty;
-
-        [Column(TypeName = "VARCHAR(15)")]
-        public virtual string Num_Teléfono { get; set; } = string.Empty;
+        public virtual string NumTelefono { get; set; } = string.Empty;
 
 
         public Cliente() {}
-        
-        public Cliente(string Nombre, string Dni, string num_Teléfono)
+
+        public Cliente(string nombre, string dni, string numTelefono)
         {
-            this.Nombre = Nombre;
-            this.Dni = Dni;
-            this.Num_Teléfono = num_Teléfono;
+            this.Nombre = nombre;
+            this.Dni = dni;
+            this.NumTelefono = numTelefono;
         }
 
-        public Cliente(int Id, string Nombre, string Dni, string num_Teléfono)
+        public Cliente(int id, string nombre, string dni, string numTelefono)
         {
-            this.Id = Id;
-            this.Nombre = Nombre;
-            this.Dni = Dni;
-            this.Num_Teléfono = num_Teléfono;
+            this.Id = id;
+            this.Nombre = nombre;
+            this.Dni = dni;
+            this.NumTelefono = numTelefono;
         }
 
 

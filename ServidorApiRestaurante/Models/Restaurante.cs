@@ -1,32 +1,30 @@
-﻿using System.ComponentModel.DataAnnotations;
-
+﻿
 namespace ServidorApiRestaurante.Models
 {
     public class Restaurante
     {
-        [Key] // Clave primaria
         public virtual int Id { get; set; }
         public virtual string Nombre { get; set; } = string.Empty;
-        public virtual string Hora_apertura { get; set; } = string.Empty;
-        public virtual string Hora_cierre { get; set; } = string.Empty;
+        public virtual string HoraApertura { get; set; } = string.Empty;
+        public virtual string HoraCierre { get; set; } = string.Empty;
 
 
         // Constructor sin parámetros requerido por NHibernate
         public Restaurante() {}
 
-        public Restaurante(string nombre, string hora_apertura, string hora_cierre)
+        public Restaurante(string nombre, string horaApertura, string horaCierre)
         {
             this.Nombre = nombre;
-            this.Hora_apertura = hora_apertura;
-            this.Hora_cierre = hora_cierre;
+            this.HoraApertura = horaApertura;
+            this.HoraCierre = horaCierre;
         }
 
-        public Restaurante(int Id, string nombre, string hora_apertura, string hora_cierre)
+        public Restaurante(int Id, string nombre, string horaApertura, string horaCierre)
         {
             this.Id = Id;
             this.Nombre = nombre;
-            this.Hora_apertura = hora_apertura;
-            this.Hora_cierre = hora_cierre;
+            this.HoraApertura = horaApertura;
+            this.HoraCierre = horaCierre;
         }
 
 

@@ -5,11 +5,7 @@ namespace ServidorApiRestaurante.Models
 {
     public class Rol
     {
-        [Key] // Clave primaria
         public virtual int Id { get; set; }
-
-        [Required] // La propiedad 'Nombre' es obligatoria
-        [Column(TypeName = "TEXT")] 
         public virtual string Nombre { get; set; } = string.Empty;
 
         // Opcional: Podrías agregar otras propiedades en el futuro
