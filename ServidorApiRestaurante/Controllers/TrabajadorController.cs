@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using ServidorApiRestaurante.Model;
+using ServidorApiRestaurante.Models;
 using System.Diagnostics;
 using System.Text.Json;
 using System.Text.Json.Serialization;

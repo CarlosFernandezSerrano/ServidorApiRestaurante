@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc.RazorPages;
-using ServidorApiRestaurante.Model;
 using ServidorApiRestaurante.Models;
 using System.Data.SQLite;
 using System.Diagnostics;

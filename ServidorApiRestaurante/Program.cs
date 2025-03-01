@@ -9,6 +9,10 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+// Llamo al método de BDDController para crear la base de datos
+ServidorApiRestaurante.Controllers.BDDController.CrearBDD();  // Creo la base de datos, si no está creada, antes de iniciar la aplicación
+ServidorApiRestaurante.Controllers.BDDController.CrearTablas();
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
