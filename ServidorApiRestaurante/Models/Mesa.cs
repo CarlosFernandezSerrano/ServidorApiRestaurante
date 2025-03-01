@@ -3,7 +3,7 @@ namespace ServidorApiRestaurante.Models
 {
     public class Mesa
     {
-        public virtual int Id { get; set; }
+        /*public virtual int Id { get; set; }
         public virtual float PosX { get; set; }
         public virtual float PosY { get; set; }
         public virtual float ScaleX { get; set; }
@@ -12,19 +12,27 @@ namespace ServidorApiRestaurante.Models
         public virtual Restaurante? Restaurante { get; set; }
 
 
-        public Mesa() { }
+        public Mesa() { }*/
 
-        public Mesa(float posX, float posY, float scaleX, float scaleY, bool disponible, Restaurante? restaurante = null)
+        public int Id { get; set; }
+        public float PosX { get; set; }
+        public float PosY { get; set; }
+        public float ScaleX { get; set; }
+        public float ScaleY { get; set; }
+        public bool Disponible { get; set; }
+        public int Restaurante_ID { get; set; }
+
+        public Mesa(float posX, float posY, float scaleX, float scaleY, bool disponible, int restaurante_Id)
         {
             this.PosX = posX;
             this.PosY = posY;
             this.ScaleX = scaleX;
             this.ScaleY = scaleY;
             this.Disponible = disponible;
-            this.Restaurante = restaurante;
+            this.Restaurante_ID = restaurante_Id;
         }
 
-        public Mesa(int id, float posX, float posY, float scaleX, float scaleY, bool disponible, Restaurante? restaurante = null)
+        public Mesa(int id, float posX, float posY, float scaleX, float scaleY, bool disponible, int restaurante_Id)
         {
             this.Id = id;
             this.PosX = posX;
@@ -32,7 +40,7 @@ namespace ServidorApiRestaurante.Models
             this.ScaleX = scaleX;
             this.ScaleY = scaleY;
             this.Disponible = disponible;
-            this.Restaurante = restaurante;
+            this.Restaurante_ID = restaurante_Id;
         }
     }
 }

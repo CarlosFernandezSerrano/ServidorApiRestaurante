@@ -19,12 +19,12 @@ namespace ServidorApiRestaurante.Mappings
             Map(x => x.Estado).Column("estado").Not.Nullable(); // Columna "estado"
 
             // Relación muchos a uno con Cliente
-            References(x => x.Cliente)
+            References(x => x.Cliente_Id)
                 .Column("cliente_ID")
                 .Not.Nullable(); // Relación no nula con Cliente
 
             // Relación muchos a uno con Mesa
-            References(x => x.Mesa)
+            References(x => x.Mesa_Id)
                 .Column("mesa_ID")
                 .Not.Nullable(); // Relación no nula con Mesa
 

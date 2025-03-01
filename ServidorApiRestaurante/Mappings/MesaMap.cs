@@ -32,7 +32,7 @@ namespace ServidorApiRestaurante.Mappings
                 .Not.Nullable().Default("TRUE");  // No puede ser nula, valor por defecto es TRUE
 
             // Relación muchos a uno con Restaurante
-            References(x => x.Restaurante)  // Relación con la clase Restaurante
+            References(x => x.Restaurante_ID)  // Relación con la clase Restaurante
                 .Column("restaurante_ID")  // La columna de la relación en la base de datos es "restaurante_ID"
                 .Not.Nullable();  // No puede ser nula
                 //.Cascade.All();  // Para que al eliminar un restaurante, se eliminen las mesas asociadas en la aplicación.

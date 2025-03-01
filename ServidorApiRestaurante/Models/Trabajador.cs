@@ -3,7 +3,7 @@ namespace ServidorApiRestaurante.Models
 {
     public class Trabajador
     {
-        public virtual int Id { get; set; }
+        /*public virtual int Id { get; set; }
         public virtual string Nombre { get; set; } = string.Empty;
         public virtual string HashContraseña { get; set; } = string.Empty; // Se guarda en la BDD
         public virtual Rol? Rol { get; set; } // Relación con Rol
@@ -24,21 +24,41 @@ namespace ServidorApiRestaurante.Models
         // Constructor sin parámetros requerido por NHibernate
         public Trabajador() { }
 
-        public Trabajador(string nombre, string contraseña, Rol? rol = null, Restaurante? restaurante = null)
+        */
+
+        public int Id { get; set; }
+        public string Nombre { get; set; }
+        public string HashContraseña { get; set; } = string.Empty;
+        public int Rol_Id { get; set; }
+        public int Restaurante_ID { get; set; }
+
+        // Propiedad no persistida en la BDD
+        public virtual string Contraseña
         {
-            Nombre = nombre;
-            Contraseña = contraseña; // Se almacena el hash automáticamente
-            Rol = rol;
-            Restaurante = restaurante;
+            set
+            {
+                if (string.IsNullOrEmpty(HashContraseña)) // Solo si está vacío
+                {
+                    HashContraseña = HashearContraseña(value);
+                }
+            }
         }
 
-        public Trabajador(int id, string nombre, string contraseña, Rol? rol = null, Restaurante? restaurante = null)
+        public Trabajador(string nombre, string contraseña, int rol_Id, int restaurante_Id)
         {
-            Id = id;
-            Contraseña = contraseña; // Se almacena el hash automáticamente
-            Nombre = nombre;
-            Rol = rol;
-            Restaurante = restaurante;
+            this.Nombre = nombre;
+            this.Contraseña = contraseña; // Se almacena el hash automáticamente
+            this.Rol_Id = rol_Id;
+            this.Restaurante_ID = restaurante_Id;
+        }
+
+        public Trabajador(int id, string nombre, string contraseña, int rol_Id, int restaurante_Id)
+        {
+            this.Id = id;
+            this.Nombre = nombre;
+            this.Contraseña = contraseña; // Se almacena el hash automáticamente
+            this.Rol_Id = rol_Id;
+            this.Restaurante_ID = restaurante_Id;
         }
 
         private static string HashearContraseña(string contraseña)
