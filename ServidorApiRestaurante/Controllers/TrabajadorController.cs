@@ -35,19 +35,17 @@ namespace ServidorApiRestaurante.Controllers
 
         }
 
-        [HttpGet]
-        [Route("registrarUser/{nombreYPassword}")]
-        public dynamic RegistroTrabajador(string nombreYPassword)
+        [HttpPost]
+        [Route("registrarUser")]
+        public dynamic RegistroTrabajador(Trabajador trabajador)
         {
-            string[] cads = nombreYPassword.Split("*");
-            Trace.WriteLine("Cads 1: " + cads[0]);
-            Trace.WriteLine("Cads 2: " + cads[1]);
-            // Veo si existe el trabajador
-            //bool b = ExisteTrabajador(cads[0]);
-
-            InsertarRegistro(BDDController.ConnectionString, cads[0], HashearContraseña(cads[1]));
-            Trace.WriteLine("Trabajador resgistrado correctamente");
-            return new { sucess = true };
+            //string[] cads = nombreYPassword.Split("*");
+            Trace.WriteLine("trabajador.Nombre: " + trabajador.Nombre);
+            Trace.WriteLine("trabajador.Password " + trabajador.Password);
+            
+            int num = InsertarRegistro(BDDController.ConnectionString, trabajador.Nombre, HashearContraseña(trabajador.Password));
+            
+            return new { result = num };
 
         }
 
@@ -274,10 +272,10 @@ namespace ServidorApiRestaurante.Controllers
         }*/
 
 
-        private static void InsertarRegistro(string connectionString, string nombre, string password)
+        private static int InsertarRegistro(string connectionString, string nombre, string password)
         {
             // Consulta SQL parametrizada para insertar datos en la tabla 'Trabajadores'
-            string insertQuery = "INSERT INTO Trabajadores (nombre, password, rol_id) VALUES (@nombre, @password, @rol_id)";
+            string insertQuery = "INSERT INTO Trabajadores (nombre, password, rol_id, restaurante_ID) VALUES (@nombre, @password, @rol_id, @restaurante_ID)";
 
             // Usamos 'using' para asegurar que la conexión se cierre correctamente
             using (var connection = new MySqlConnection(connectionString))
@@ -294,26 +292,34 @@ namespace ServidorApiRestaurante.Controllers
                         cmd.Parameters.AddWithValue("@nombre", nombre);
                         cmd.Parameters.AddWithValue("@password", password);
                         cmd.Parameters.AddWithValue("@rol_id", 1);
+                        cmd.Parameters.AddWithValue("@restaurante_ID", DBNull.Value);
 
                         // Ejecutamos la consulta. ExecuteNonQuery devuelve el número de filas afectadas
                         int filasAfectadas = cmd.ExecuteNonQuery();
-                        Trace.WriteLine("Registro insertado correctamente. Filas afectadas: " + filasAfectadas);
+                        Trace.WriteLine("Trabajador insertado correctamente. Filas afectadas: " + filasAfectadas);
+                        return 1;
+                        //return "Trabajador registrado correctamente";
                     }
                 }
                 catch (MySqlException ex)
                 {
                     // Capturamos errores relacionados con MySQL
                     Trace.WriteLine("Error relacionado con MySQL: " + ex.Message);
+                    return 2;
+                    //return "El usuario " + nombre + " ya existe";
                 }
                 catch (InvalidOperationException ex)
                 {
                     // Capturamos errores de operación inválida en la conexión
                     Trace.WriteLine("Error de operación inválida: " + ex.Message);
+                    return -3;
                 }
                 catch (Exception ex)
                 {
                     // Capturamos cualquier otro error inesperado
                     Trace.WriteLine("Error inesperado: " + ex.Message);
+                    return 0;
+                    //return "Error inesperado";
                 }
             }
         }

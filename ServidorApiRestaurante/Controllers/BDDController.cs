@@ -81,7 +81,7 @@ namespace ServidorApiRestaurante.Controllers
             Nombre VARCHAR(40) UNIQUE NOT NULL,            
             Password VARCHAR(60) NOT NULL,              
             Rol_ID INTEGER NOT NULL,                
-            Restaurante_ID INTEGER NOT NULL,        
+            Restaurante_ID INTEGER,        
             FOREIGN KEY (Rol_ID) REFERENCES Rols(ID), 
             FOREIGN KEY (Restaurante_ID) REFERENCES Restaurantes(ID) ON DELETE CASCADE 
             );";
@@ -160,6 +160,53 @@ namespace ServidorApiRestaurante.Controllers
                 catch (Exception ex)
                 {
                     // Si ocurre cualquier otro error no capturado por los bloques anteriores, lo capturamos aquí.
+                    Trace.WriteLine("Error inesperado: " + ex.Message);
+                }
+            }
+        }
+
+        public static void InsertarRegistrosRol()
+        {
+            InsertarRegistroRol(ConnectionString, "Empleado");
+            InsertarRegistroRol(ConnectionString, "Gerente");
+        }
+        private static void InsertarRegistroRol(string connectionString, string nombre)
+        {
+            // Consulta SQL parametrizada para insertar datos en la tabla 'Rols'
+            string insertQuery = "INSERT INTO Rols (nombre) VALUES (@nombre)";
+
+            // Usamos 'using' para asegurar que la conexión se cierre correctamente
+            using (var connection = new MySqlConnection(connectionString))
+            {
+                try
+                {
+                    // Abrimos la conexión con la base de datos
+                    connection.Open();
+
+                    // Creamos el comando para ejecutar la consulta SQL
+                    using (var cmd = new MySqlCommand(insertQuery, connection))
+                    {
+                        // Asignamos los parámetros con sus respectivos valores
+                        cmd.Parameters.AddWithValue("@nombre", nombre);
+
+                        // Ejecutamos la consulta. ExecuteNonQuery devuelve el número de filas afectadas
+                        int filasAfectadas = cmd.ExecuteNonQuery();
+                        Trace.WriteLine("Registro insertado correctamente. Filas afectadas: " + filasAfectadas);
+                    }
+                }
+                catch (MySqlException ex)
+                {
+                    // Capturamos errores relacionados con MySQL
+                    Trace.WriteLine("Error relacionado con MySQL: " + ex.Message);
+                }
+                catch (InvalidOperationException ex)
+                {
+                    // Capturamos errores de operación inválida en la conexión
+                    Trace.WriteLine("Error de operación inválida: " + ex.Message);
+                }
+                catch (Exception ex)
+                {
+                    // Capturamos cualquier otro error inesperado
                     Trace.WriteLine("Error inesperado: " + ex.Message);
                 }
             }
