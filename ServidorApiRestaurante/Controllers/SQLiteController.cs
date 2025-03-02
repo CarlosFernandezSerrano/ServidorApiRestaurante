@@ -98,7 +98,7 @@ namespace ServidorApiRestaurante.Controllers
                             int rol_Id = reader.GetInt32(0);
                             int restaurante_Id = reader.GetInt32(0);
 
-                            users.Add(new Trabajador(id, name, contraseña, new Rol(), new Restaurante()));
+                            users.Add(new Trabajador(id, name, contraseña, 1, 1));
                         }
                     }
                 }

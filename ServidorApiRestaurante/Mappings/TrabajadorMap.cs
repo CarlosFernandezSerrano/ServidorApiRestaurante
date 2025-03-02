@@ -21,7 +21,7 @@ namespace ServidorApiRestaurante.Mappings
                 .Unique();
 
             // Mapeo de la contraseña (almacena el hash) en la columna "contraseña"
-            Map(x => x.HashContraseña)
+            Map(x => x.Password)
                 .Column("contraseña")
                 .Not.Nullable();
 

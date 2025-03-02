@@ -5,8 +5,8 @@ namespace ServidorApiRestaurante.Controllers
 {
     public class BDDController
     {
-        
 
+        public static readonly string ConnectionString = "server=localhost;port=3306;user id=root;password=;database=restdb";
 
         public static void CrearBDD()
         {
@@ -55,7 +55,7 @@ namespace ServidorApiRestaurante.Controllers
 
         public static void CrearTablas()
         {
-            string connectionString = "server=localhost;port=3306;user id=root;password=;database=restdb";
+            //string connectionString = 
 
             // Defino la consulta SQL para crear la tabla si no existe.
             string consultaDeTablaRols = @"
@@ -63,7 +63,7 @@ namespace ServidorApiRestaurante.Controllers
             ID INTEGER AUTO_INCREMENT PRIMARY KEY,  
             Nombre VARCHAR(40) UNIQUE NOT NULL            
             );";
-            CrearTabla(connectionString, consultaDeTablaRols, "Rols");
+            CrearTabla(ConnectionString, consultaDeTablaRols, "Rols");
 
             string consultaDeTablaRestaurantes = @"
             CREATE TABLE IF NOT EXISTS Restaurantes (
@@ -72,7 +72,7 @@ namespace ServidorApiRestaurante.Controllers
             Hora_Apertura VARCHAR(10) NOT NULL, 
             Hora_Cierre VARCHAR(10) NOT NULL
             );";
-            CrearTabla(connectionString, consultaDeTablaRestaurantes, "Restaurantes");
+            CrearTabla(ConnectionString, consultaDeTablaRestaurantes, "Restaurantes");
 
             //// BCrypt genera un hash siempre de una longitud fija de 60 caracteres
             string consultaDeTablaTrabajadores = @"
@@ -85,7 +85,7 @@ namespace ServidorApiRestaurante.Controllers
             FOREIGN KEY (Rol_ID) REFERENCES Rols(ID), 
             FOREIGN KEY (Restaurante_ID) REFERENCES Restaurantes(ID) ON DELETE CASCADE 
             );";
-            CrearTabla(connectionString, consultaDeTablaTrabajadores, "Trabajadores");
+            CrearTabla(ConnectionString, consultaDeTablaTrabajadores, "Trabajadores");
 
             string consultaDeTablaMesas = @"
             CREATE TABLE IF NOT EXISTS Mesas (
@@ -98,7 +98,7 @@ namespace ServidorApiRestaurante.Controllers
             Restaurante_ID INTEGER NOT NULL,        
             FOREIGN KEY (Restaurante_ID) REFERENCES Restaurantes(ID) ON DELETE CASCADE 
             );";
-            CrearTabla(connectionString, consultaDeTablaMesas, "Mesas");
+            CrearTabla(ConnectionString, consultaDeTablaMesas, "Mesas");
 
             string consultaDeTablaClientes = @"
             CREATE TABLE IF NOT EXISTS Clientes (
@@ -107,7 +107,7 @@ namespace ServidorApiRestaurante.Controllers
             Dni VARCHAR(9) UNIQUE NOT NULL,
             Num_Telefono VARCHAR(15)
             );";
-            CrearTabla(connectionString, consultaDeTablaClientes, "Clientes");
+            CrearTabla(ConnectionString, consultaDeTablaClientes, "Clientes");
 
             string consultaDeTablaReservas = @"
             CREATE TABLE IF NOT EXISTS Reservas (
@@ -121,7 +121,7 @@ namespace ServidorApiRestaurante.Controllers
             FOREIGN KEY (Mesa_ID) REFERENCES Mesas(ID) ON DELETE CASCADE,
             UNIQUE (Mesa_ID, Fecha, Hora)
             );";
-            CrearTabla(connectionString, consultaDeTablaReservas, "Reservas");
+            CrearTabla(ConnectionString, consultaDeTablaReservas, "Reservas");
 
         }
 

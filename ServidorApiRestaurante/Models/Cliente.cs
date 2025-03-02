@@ -1,4 +1,6 @@
 ﻿
+using System.Text.Json.Serialization;
+
 namespace ServidorApiRestaurante.Models
 {
     public class Cliente
@@ -22,6 +24,7 @@ namespace ServidorApiRestaurante.Models
             this.NumTelefono = numTelefono;
         }
 
+        [JsonConstructor]
         public Cliente(int id, string nombre, string dni, string numTelefono)
         {
             this.Id = id;
