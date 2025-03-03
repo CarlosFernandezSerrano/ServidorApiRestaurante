@@ -33,7 +33,7 @@ namespace ServidorApiRestaurante.Mappings
             // Relación muchos a uno con Restaurante.
             // Nota: Para que al eliminar un restaurante se eliminen los trabajadores asignados,
             // se debe configurar la restricción ON DELETE CASCADE a nivel de base de datos.
-            References(x => x.Restaurante_ID)
+            References(x => x.Restaurante_Id)
                 .Column("restaurante_ID")
                 .Not.Nullable();
         }

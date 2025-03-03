@@ -32,7 +32,7 @@ namespace ServidorApiRestaurante.Models
         public string Nombre { get; set; }
         public string Password { get; set; } = string.Empty;
         public int Rol_Id { get; set; }
-        public int Restaurante_ID { get; set; }
+        public int Restaurante_Id { get; set; }
 
 
         // Constructor sin parámetros requerido para la deserialización
@@ -43,7 +43,7 @@ namespace ServidorApiRestaurante.Models
             this.Nombre = nombre;
             this.Password = contraseña; 
             this.Rol_Id = rol_Id;
-            this.Restaurante_ID = restaurante_Id;
+            this.Restaurante_Id = restaurante_Id;
         }
 
         [JsonConstructor]
@@ -51,12 +51,11 @@ namespace ServidorApiRestaurante.Models
         {
             this.Id = id;
             this.Nombre = nombre;
-            this.Password = password; 
+            this.Password = password;
             this.Rol_Id = rol_Id;
-            this.Restaurante_ID = restaurante_Id;
+            this.Restaurante_Id = restaurante_Id;
         }
 
-        
 
     }
 }

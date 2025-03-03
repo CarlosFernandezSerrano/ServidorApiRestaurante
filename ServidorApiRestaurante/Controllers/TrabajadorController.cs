@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MySql.Data.MySqlClient;
 using ServidorApiRestaurante.Models;
+using System.Data;
 using System.Diagnostics;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -17,9 +18,12 @@ namespace ServidorApiRestaurante.Controllers
         [Route("obtenerID")]
         public dynamic GetIDTrabajador(Trabajador t)
         {
-            int id  = ObtenerIdTrabajador(t.Nombre);
-            Trace.WriteLine("ID Trabajador: " + id);
-            return new { result = id  };
+            //int id  = ObtenerIdTrabajador(t.Nombre);
+            Trabajador trabajador = ObtenerTrabajador(t.Nombre);
+            Trace.WriteLine("ID Trabajador: " + trabajador.Id);
+            trabajador.Nombre = "";
+            return trabajador;
+            //return new { result = id  };
         }
 
         [HttpPost]
@@ -47,89 +51,42 @@ namespace ServidorApiRestaurante.Controllers
             // Compruebo si existe el trabajador. Aquí no puedo buscar por id, porque no lo tengo cuando inicio sesión.
             if (ExisteTrabajador(trabajador.Nombre))
             {
-                
-                return new { result = 1 };
+                string hashPassword = ObtenerPasswordTrabajador(trabajador.Nombre);
+                Trace.WriteLine("trabajador.Password " + hashPassword);
+                bool passwordCorrecta = VerificarContraseña(trabajador.Password, hashPassword);
+                if (passwordCorrecta)
+                {
+                    Trace.WriteLine("Contraseña correcta");
+                    return new { result = 1 };
+                }
+                else
+                {
+                    Trace.WriteLine("Contraseña incorrecta");
+                    return new { result = 0 };
+                }
             }
             else
             {
-                return new { result = 0 };
+                return new { result = -1 };
             }
-
-           
-
-            //return new { sucess = true };
         }
 
         
 
         [HttpGet]
-        [Route("existe/{nombre}")]
-        public dynamic existeCliente(string nombre)
+        [Route("MétodoPrueba/{nombre}")]
+        public dynamic MétodoPrueba(int nombre) 
         {
-        
-            return new { sucess = true };
+            //Trabajador t = ObtenerTrabajador(id);
+
+            return new { result = true };
         }
 
         [HttpGet]
         [Route("listar")]
         public dynamic listarCliente()
         {
-            /*List<Trabajador> clientes = new List<Trabajador>();
-            Trabajador c = new Trabajador(0, "Fernando", "gsdgsgsag", 1, 1);
-            Trabajador c2 = new Trabajador(0, "Ramos", "gsdgsgsag", 1, 1);
-            clientes.Add(c);
-            clientes.Add(c2);*/
-            return new { sucess = true };
-            /*List<Cliente> clientes = new List<Cliente>()
-            {
-                new Cliente
-                {
-                    id = "1",
-                    correo = "google@gmail.com",
-                    edad = "19",
-                    nombre = "Bernardo Peña"
-
-                },
-                new Cliente
-                {
-                    id = "1",
-                    correo = "miguelgoogle@gmail.com",
-                    edad = "23",
-                    nombre = "Miguel Mantilla"
-                }
-            };*/
-            //return clientes;
-            
-        }
-
-        /*[HttpGet]
-        [Route("listarxid")]
-        public dynamic listarClientexid(string _id)
-        {
-            return new Cliente
-            {
-                id = _id,
-                correo = "miguelgoogle@gmail.com",
-                edad = "23",
-                nombre = "Miguel Mantilla"
-            };
-        }*/
-
-        [HttpPost]
-        [Route("guardar")]
-        public dynamic guardarCliente(Trabajador trabajador)
-        {
-            //Trabajador c = new Trabajador(0, "Fernando", "gsdgsgsag", 1, 1);
-            //return JsonSerializer.Serialize(c);
-            //return new { sucess = true };
-            //trabajador.Id = 3;
-            /*return 
-            
-                success = true,
-                message = "trabajador registrado",
-                trabajador
-            ;*/
-            return trabajador;
+            return new { sucess = true };            
         }
 
         [HttpPost]
@@ -212,10 +169,10 @@ namespace ServidorApiRestaurante.Controllers
         }
 
         // Devuelve true si la contraseña es correcta.
-        /*public bool VerificarContraseña(string contraseñaIngresada, string hashPassword) 
+        public static bool VerificarContraseña(string contraseñaIngresada, string hashPassword) 
         {
             return BCrypt.Net.BCrypt.Verify(contraseñaIngresada, hashPassword);
-        }*/
+        }
 
         //Método que comprueba si un trabajador (por nombre) ya está registrado
         private static bool ExisteTrabajador(string nombre)
@@ -321,6 +278,70 @@ namespace ServidorApiRestaurante.Controllers
                 {
                     Trace.WriteLine("Error al obtener ID del trabajador: " + ex.Message);
                     return -1; 
+                }
+            }
+        }
+
+        private static Trabajador ObtenerTrabajador(string nombre)
+        {
+            using (var connection = new MySqlConnection(BDDController.ConnectionString))
+            {
+                try
+                {
+                    connection.Open();
+                    string query = "SELECT * FROM Trabajadores WHERE nombre = @nombre";
+
+                    using (var cmd = new MySqlCommand(query, connection))
+                    {
+                        cmd.Parameters.AddWithValue("@nombre", nombre);
+                        using (var reader = cmd.ExecuteReader())
+                        {
+                            if (reader.Read())
+                            {
+                                int Id = reader.GetInt32("ID");
+                                string Nombre = reader.GetString("Nombre");
+                                int Rol_Id = reader.GetInt32("Rol_ID");
+                                int Restaurante_Id = reader.IsDBNull("Restaurante_ID") ? 0 : reader.GetInt32("Restaurante_ID");
+                                Trabajador trabajador = new Trabajador(Id, Nombre, "", Rol_Id, Restaurante_Id);
+                                
+                                return trabajador;
+                            }
+                            else
+                            {
+                                throw new Exception("Error al obtener trabajador");
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Trace.WriteLine("Error al obtener trabajador: " + ex.Message);
+                    throw new Exception("Error al obtener trabajador: " + ex.Message);
+                }
+            }
+        }
+
+        private static string ObtenerPasswordTrabajador(string nombre)
+        {
+            using (var connection = new MySqlConnection(BDDController.ConnectionString))
+            {
+                try
+                {
+                    connection.Open();
+                    string query = "SELECT Password FROM Trabajadores WHERE nombre = @nombre";
+
+                    using (var cmd = new MySqlCommand(query, connection))
+                    {
+                        cmd.Parameters.AddWithValue("@nombre", nombre);
+                        object result = cmd.ExecuteScalar(); // Ejecuta la consulta y devuelve la primera columna de la primera fila
+
+                        return result is string str ? str : string.Empty;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Trace.WriteLine("Error al obtener Password del trabajador: " + ex.Message);
+                    throw new Exception("Error al obtener Password del trabajador: " + ex.Message);
                 }
             }
         }
