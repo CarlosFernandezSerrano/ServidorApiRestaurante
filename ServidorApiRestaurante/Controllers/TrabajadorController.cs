@@ -12,116 +12,62 @@ namespace ServidorApiRestaurante.Controllers
     [Route("trabajador")] // Ruta: dirección/cliente/   https://localhost:7233/
     public class TrabajadorController : ControllerBase
     {
-        //SQLiteController sQLiteController;
-
-        // La API se conecta a la BDD
-        [HttpGet]
-        [Route("cbdd")]
-        public dynamic conectarConLaBDD()
+                
+        [HttpPost]
+        [Route("obtenerID")]
+        public dynamic GetIDTrabajador(Trabajador t)
         {
-            // Obtén la ruta absoluta de la carpeta 'base_datos' dentro del proyecto
-            string folderPath = Path.Combine(Directory.GetCurrentDirectory(), "BDD"); // Ruta en la carpeta del ejecutable
-
-            // La ruta completa al archivo de la base de datos
-            string rutaBDDFichero = Path.Combine(folderPath, "miBaseDeDatos.db");
-
-            Trace.WriteLine("DataBasePath: " + rutaBDDFichero); //Mostrar contenido en salida
-            
-            //sQLiteController = new SQLiteController(rutaBDDFichero);
-            Trace.WriteLine("A: ");
-            //sQLiteController.CreateDatabase();
-            Trace.WriteLine("B: ");
-            return new { result = true };
-
+            int id  = ObtenerIdTrabajador(t.Nombre);
+            Trace.WriteLine("ID Trabajador: " + id);
+            return new { result = id  };
         }
 
         [HttpPost]
         [Route("registrarUser")]
         public dynamic RegistroTrabajador(Trabajador trabajador)
         {
-            //string[] cads = nombreYPassword.Split("*");
             Trace.WriteLine("trabajador.Nombre: " + trabajador.Nombre);
             Trace.WriteLine("trabajador.Password " + trabajador.Password);
             
-            int num = InsertarRegistro(BDDController.ConnectionString, trabajador.Nombre, HashearContraseña(trabajador.Password));
-            
-            return new { result = num };
-
-        }
-
-        [HttpGet]
-        [Route("logIn/{nombreYPassword}")]
-        public dynamic LogInTrabajador(string nombreYPassword)
-        {
-            string[] cads = nombreYPassword.Split("*");
-            Trace.WriteLine("Cads 1: " + cads[0]);
-            Trace.WriteLine("Cads 2: " + cads[1]);
-            // Veo si existe el trabajador
-            //bool b = ExisteTrabajador(cads[0]);
-            /*List<Trabajador> clientes = new List<Trabajador>();
-            Trabajador c = new Trabajador(nombre, "gsdgsgsag", 1, 1);
-            Trabajador c2 = new Trabajador(nombre, "gsdgsgsag", 1, 1);
-            clientes.Add(c);
-            clientes.Add(c2);*/
-            return new { sucess = true };
-            /*List<Cliente> clientes = new List<Cliente>()
+            // Compruebo si existe el trabajador antes de intentar insertarlo, para que no se creen IDs vacíos.
+            if (ExisteTrabajador(trabajador.Nombre)){
+                return new { result = 2 };
+            }
+            else
             {
-                new Cliente
-                {
-                    id = "1",
-                    correo = "google@gmail.com",
-                    edad = "19",
-                    nombre = "Bernardo Peña"
-
-                },
-                new Cliente
-                {
-                    id = "1",
-                    correo = "miguelgoogle@gmail.com",
-                    edad = "23",
-                    nombre = "Miguel Mantilla"
-                }
-            };*/
-            //return clientes;
-
+                int num = InsertarRegistro(BDDController.ConnectionString, trabajador.Nombre, HashearContraseña(trabajador.Password));
+                return new { result = num };
+            }
         }
 
-        //Método que comprueba si el nombre puesto en el logIn ya está puesto en la tabla de trabajadores
-        private bool ExisteTrabajador(string nombre)
+        [HttpPost]
+        [Route("logIn")]
+        public dynamic LogInTrabajador(Trabajador trabajador)
         {
-            throw new NotImplementedException();
+            // Compruebo si existe el trabajador. Aquí no puedo buscar por id, porque no lo tengo cuando inicio sesión.
+            if (ExisteTrabajador(trabajador.Nombre))
+            {
+                
+                return new { result = 1 };
+            }
+            else
+            {
+                return new { result = 0 };
+            }
+
+           
+
+            //return new { sucess = true };
         }
+
+        
 
         [HttpGet]
         [Route("existe/{nombre}")]
         public dynamic existeCliente(string nombre)
         {
-            /*List<Trabajador> clientes = new List<Trabajador>();
-            Trabajador c = new Trabajador(nombre, "gsdgsgsag", 1, 1);
-            Trabajador c2 = new Trabajador(nombre, "gsdgsgsag", 1, 1);
-            clientes.Add(c);
-            clientes.Add(c2);*/
+        
             return new { sucess = true };
-            /*List<Cliente> clientes = new List<Cliente>()
-            {
-                new Cliente
-                {
-                    id = "1",
-                    correo = "google@gmail.com",
-                    edad = "19",
-                    nombre = "Bernardo Peña"
-
-                },
-                new Cliente
-                {
-                    id = "1",
-                    correo = "miguelgoogle@gmail.com",
-                    edad = "23",
-                    nombre = "Miguel Mantilla"
-                }
-            };*/
-            //return clientes;
-
         }
 
         [HttpGet]
@@ -265,12 +211,37 @@ namespace ServidorApiRestaurante.Controllers
             return BCrypt.Net.BCrypt.HashPassword(contraseña);
         }
 
-        //Devuelve true si la contraseña es correcta.
-        /*public bool VerificarContraseña(string contraseñaIngresada)
+        // Devuelve true si la contraseña es correcta.
+        /*public bool VerificarContraseña(string contraseñaIngresada, string hashPassword) 
         {
-            return BCrypt.Net.BCrypt.Verify(contraseñaIngresada, this.password);
+            return BCrypt.Net.BCrypt.Verify(contraseñaIngresada, hashPassword);
         }*/
 
+        //Método que comprueba si un trabajador (por nombre) ya está registrado
+        private static bool ExisteTrabajador(string nombre)
+        {
+            string query = "SELECT COUNT(*) FROM Trabajadores WHERE nombre = @nombre";
+
+            using (var connection = new MySqlConnection(BDDController.ConnectionString))
+            {
+                try
+                {
+                    connection.Open();
+                    using (var cmd = new MySqlCommand(query, connection))
+                    {
+                        cmd.Parameters.AddWithValue("@nombre", nombre);
+
+                        int count = Convert.ToInt32(cmd.ExecuteScalar()); // Obtiene el número de coincidencias
+                        return count > 0; // Si es mayor a 0, el trabajador existe
+                    }
+                }
+                catch (MySqlException ex)
+                {
+                    Trace.WriteLine("Error relacionado con MySQL: " + ex.Message);
+                    throw new Exception("Error al verificar la existencia del trabajador: " + ex.Message);
+                }
+            }
+        }
 
         private static int InsertarRegistro(string connectionString, string nombre, string password)
         {
@@ -298,7 +269,6 @@ namespace ServidorApiRestaurante.Controllers
                         int filasAfectadas = cmd.ExecuteNonQuery();
                         Trace.WriteLine("Trabajador insertado correctamente. Filas afectadas: " + filasAfectadas);
                         return 1;
-                        //return "Trabajador registrado correctamente";
                     }
                 }
                 catch (MySqlException ex)
@@ -306,7 +276,7 @@ namespace ServidorApiRestaurante.Controllers
                     // Capturamos errores relacionados con MySQL
                     Trace.WriteLine("Error relacionado con MySQL: " + ex.Message);
                     return 2;
-                    //return "El usuario " + nombre + " ya existe";
+                    
                 }
                 catch (InvalidOperationException ex)
                 {
@@ -319,9 +289,61 @@ namespace ServidorApiRestaurante.Controllers
                     // Capturamos cualquier otro error inesperado
                     Trace.WriteLine("Error inesperado: " + ex.Message);
                     return 0;
-                    //return "Error inesperado";
                 }
             }
         }
+
+        private static int ObtenerIdTrabajador(string nombre)
+        {
+            using (var connection = new MySqlConnection(BDDController.ConnectionString))
+            {
+                try
+                {
+                    connection.Open();
+                    string query = "SELECT ID FROM Trabajadores WHERE nombre = @nombre";
+
+                    using (var cmd = new MySqlCommand(query, connection))
+                    {
+                        cmd.Parameters.AddWithValue("@nombre", nombre);
+                        object result = cmd.ExecuteScalar(); // Ejecuta la consulta y devuelve la primera columna de la primera fila
+
+                        if (result != null)
+                        {
+                            return Convert.ToInt32(result); // Devuelve el ID encontrado
+                        }
+                        else
+                        {
+                            return 0; // No se encontró el trabajador
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Trace.WriteLine("Error al obtener ID del trabajador: " + ex.Message);
+                    return -1; 
+                }
+            }
+        }
+
+        // La API se conecta a la BDD. Método que utilicé con SQLite. Ya no lo uso, se puede eliminar.
+        /*[HttpGet]
+        [Route("cbdd")]
+        public dynamic conectarConLaBDD()
+        {
+            // Obtén la ruta absoluta de la carpeta 'base_datos' dentro del proyecto
+            string folderPath = Path.Combine(Directory.GetCurrentDirectory(), "BDD"); // Ruta en la carpeta del ejecutable
+
+            // La ruta completa al archivo de la base de datos
+            string rutaBDDFichero = Path.Combine(folderPath, "miBaseDeDatos.db");
+
+            Trace.WriteLine("DataBasePath: " + rutaBDDFichero); //Mostrar contenido en salida
+            
+            //sQLiteController = new SQLiteController(rutaBDDFichero);
+            Trace.WriteLine("A: ");
+            //sQLiteController.CreateDatabase();
+            Trace.WriteLine("B: ");
+            return new { result = true };
+
+        }*/
     }
 }
