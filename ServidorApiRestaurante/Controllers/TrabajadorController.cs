@@ -15,15 +15,31 @@ namespace ServidorApiRestaurante.Controllers
     {
                 
         [HttpPost]
-        [Route("obtenerID")]
-        public dynamic GetIDTrabajador(Trabajador t)
+        [Route("obtenerTrabajadorPorNombre")]
+        public dynamic ObtenerTrabajadorConNombre(Trabajador t)
         {
             //int id  = ObtenerIdTrabajador(t.Nombre);
-            Trabajador trabajador = ObtenerTrabajador(t.Nombre);
+            Trabajador trabajador = ObtenerTrabajadorPorNombre(t.Nombre);
             Trace.WriteLine("ID Trabajador: " + trabajador.Id);
             trabajador.Nombre = "";
             return trabajador;
             //return new { result = id  };
+        }
+
+        [HttpGet]
+        [Route("obtenerTrabajadorPorId/{id}")]
+        public dynamic GetRol_IDTrabajador(int id)
+        {
+            if (ExisteTrabajadorConID(id))
+            {
+                Trabajador t = ObtenerTrabajadorPorId(id);
+                t.Id = 0; t.Nombre = "";
+                return t;
+            }
+            else
+            {
+                return new { result = 0 };
+            }
         }
 
         [HttpPost]
@@ -71,22 +87,28 @@ namespace ServidorApiRestaurante.Controllers
             }
         }
 
-        
 
         [HttpGet]
-        [Route("MétodoPrueba/{nombre}")]
-        public dynamic MétodoPrueba(int nombre) 
+        [Route("existe/{id}")]
+        public dynamic ExisteTrabajador(int id) 
         {
-            //Trabajador t = ObtenerTrabajador(id);
-
-            return new { result = true };
+            if (ExisteTrabajadorConID(id))
+            {
+                return new { result = 1 };
+            }
+            else
+            {
+                return new { result = 0 };
+            }
         }
+
+        
 
         [HttpGet]
         [Route("listar")]
         public dynamic listarCliente()
         {
-            return new { sucess = true };            
+            return new { sucess = 232 };            
         }
 
         [HttpPost]
@@ -174,7 +196,7 @@ namespace ServidorApiRestaurante.Controllers
             return BCrypt.Net.BCrypt.Verify(contraseñaIngresada, hashPassword);
         }
 
-        //Método que comprueba si un trabajador (por nombre) ya está registrado
+        //Método que comprueba (por nombre) si un trabajador ya está registrado
         private static bool ExisteTrabajador(string nombre)
         {
             string query = "SELECT COUNT(*) FROM Trabajadores WHERE nombre = @nombre";
@@ -187,6 +209,32 @@ namespace ServidorApiRestaurante.Controllers
                     using (var cmd = new MySqlCommand(query, connection))
                     {
                         cmd.Parameters.AddWithValue("@nombre", nombre);
+
+                        int count = Convert.ToInt32(cmd.ExecuteScalar()); // Obtiene el número de coincidencias
+                        return count > 0; // Si es mayor a 0, el trabajador existe
+                    }
+                }
+                catch (MySqlException ex)
+                {
+                    Trace.WriteLine("Error relacionado con MySQL: " + ex.Message);
+                    throw new Exception("Error al verificar la existencia del trabajador: " + ex.Message);
+                }
+            }
+        }
+
+        //Método que comprueba (por id) si un trabajador está registrado
+        private static bool ExisteTrabajadorConID(int id)
+        {
+            string query = "SELECT COUNT(*) FROM Trabajadores WHERE ID = @id";
+
+            using (var connection = new MySqlConnection(BDDController.ConnectionString))
+            {
+                try
+                {
+                    connection.Open();
+                    using (var cmd = new MySqlCommand(query, connection))
+                    {
+                        cmd.Parameters.AddWithValue("@id", id);
 
                         int count = Convert.ToInt32(cmd.ExecuteScalar()); // Obtiene el número de coincidencias
                         return count > 0; // Si es mayor a 0, el trabajador existe
@@ -250,18 +298,18 @@ namespace ServidorApiRestaurante.Controllers
             }
         }
 
-        private static int ObtenerIdTrabajador(string nombre)
+        private static int ObtenerRol_IdTrabajador(int id)
         {
             using (var connection = new MySqlConnection(BDDController.ConnectionString))
             {
                 try
                 {
                     connection.Open();
-                    string query = "SELECT ID FROM Trabajadores WHERE nombre = @nombre";
+                    string query = "SELECT Rol_ID FROM Trabajadores WHERE ID = @id";
 
                     using (var cmd = new MySqlCommand(query, connection))
                     {
-                        cmd.Parameters.AddWithValue("@nombre", nombre);
+                        cmd.Parameters.AddWithValue("@id", id);
                         object result = cmd.ExecuteScalar(); // Ejecuta la consulta y devuelve la primera columna de la primera fila
 
                         if (result != null)
@@ -282,7 +330,7 @@ namespace ServidorApiRestaurante.Controllers
             }
         }
 
-        private static Trabajador ObtenerTrabajador(string nombre)
+        private static Trabajador ObtenerTrabajadorPorNombre(string nombre)
         {
             using (var connection = new MySqlConnection(BDDController.ConnectionString))
             {
@@ -304,6 +352,45 @@ namespace ServidorApiRestaurante.Controllers
                                 int Restaurante_Id = reader.IsDBNull("Restaurante_ID") ? 0 : reader.GetInt32("Restaurante_ID");
                                 Trabajador trabajador = new Trabajador(Id, Nombre, "", Rol_Id, Restaurante_Id);
                                 
+                                return trabajador;
+                            }
+                            else
+                            {
+                                throw new Exception("Error al obtener trabajador");
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Trace.WriteLine("Error al obtener trabajador: " + ex.Message);
+                    throw new Exception("Error al obtener trabajador: " + ex.Message);
+                }
+            }
+        }
+
+        private static Trabajador ObtenerTrabajadorPorId(int id)
+        {
+            using (var connection = new MySqlConnection(BDDController.ConnectionString))
+            {
+                try
+                {
+                    connection.Open();
+                    string query = "SELECT * FROM Trabajadores WHERE ID = @id";
+
+                    using (var cmd = new MySqlCommand(query, connection))
+                    {
+                        cmd.Parameters.AddWithValue("@id", id);
+                        using (var reader = cmd.ExecuteReader())
+                        {
+                            if (reader.Read())
+                            {
+                                int Id = reader.GetInt32("ID");
+                                string Nombre = reader.GetString("Nombre");
+                                int Rol_Id = reader.GetInt32("Rol_ID");
+                                int Restaurante_Id = reader.IsDBNull("Restaurante_ID") ? 0 : reader.GetInt32("Restaurante_ID");
+                                Trabajador trabajador = new Trabajador(Id, Nombre, "", Rol_Id, Restaurante_Id);
+
                                 return trabajador;
                             }
                             else
