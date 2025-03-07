@@ -1,4 +1,6 @@
 ﻿
+using System.Text.Json.Serialization;
+
 namespace ServidorApiRestaurante.Models
 {
     public class Mesa
@@ -32,6 +34,7 @@ namespace ServidorApiRestaurante.Models
             this.Restaurante_ID = restaurante_Id;
         }
 
+        [JsonConstructor]
         public Mesa(int id, float posX, float posY, float scaleX, float scaleY, bool disponible, int restaurante_Id)
         {
             this.Id = id;

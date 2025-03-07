@@ -1,4 +1,6 @@
-﻿namespace ServidorApiRestaurante.Models
+﻿using System.Text.Json.Serialization;
+
+namespace ServidorApiRestaurante.Models
 {
     public enum EstadoReserva
     {
@@ -35,6 +37,7 @@
             this.Mesa_Id = mesa;
         }
 
+        [JsonConstructor]
         public Reserva(int id, string fecha, string hora, EstadoReserva estado, int cliente, int mesa)
         {
             this.Id = id;

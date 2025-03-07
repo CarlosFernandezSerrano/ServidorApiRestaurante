@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace ServidorApiRestaurante.Models
 {
@@ -21,6 +22,7 @@ namespace ServidorApiRestaurante.Models
             this.Nombre = nombre;
         }
 
+        [JsonConstructor]
         public Rol(int id, string nombre)
         {
             this.Id = id;

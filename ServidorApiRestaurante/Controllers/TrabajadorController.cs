@@ -10,7 +10,7 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 namespace ServidorApiRestaurante.Controllers
 {        
     [ApiController]
-    [Route("trabajador")] // Ruta: dirección/cliente/   https://localhost:7233/
+    [Route("trabajador")] // Ruta: dirección/trabajador/   https://localhost:7233/
     public class TrabajadorController : ControllerBase
     {
                 
