@@ -127,20 +127,21 @@ namespace ServidorApiRestaurante.Controllers
         [Route("actualizarTrabajador")]
         public dynamic ActualizarTrabajadorXid(Trabajador t)
         {
+            Trace.WriteLine("Llega a actualizar trabajador");
             int i = ActualizarTrabajadorPorId(t);
             
             // La actualización fue un éxito y se lo comunico al cliente
             if (i.Equals(1)){
                 return new
                 {
-                    result = true
+                    result = 1
                 };
             }
             else
             {
                 return new
                 {
-                    result = false
+                    result = 0
                 };
             }
                 
