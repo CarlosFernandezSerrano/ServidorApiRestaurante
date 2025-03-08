@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MySql.Data.MySqlClient;
 using ServidorApiRestaurante.Models;
+using System.Data;
 using System.Diagnostics;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace ServidorApiRestaurante.Controllers
 {
@@ -29,7 +31,23 @@ namespace ServidorApiRestaurante.Controllers
             }
         }
 
-        //Método que comprueba (por nombre) si un trabajador ya está registrado
+        [HttpGet]
+        [Route("getRestaurantePorNombre/{nombre}")]
+        public dynamic ObtenerRestauranteConNombre(string nombre)
+        {
+            Restaurante restaurante = ObtenerRestaurantePorNombre(nombre);
+            return restaurante;
+        }
+
+        [HttpGet]
+        [Route("getRestaurantePorId/{id}")]
+        public dynamic ObtenerRestauranteConId(int id)
+        {
+            Restaurante restaurante = ObtenerRestaurantePorId(id);
+            return restaurante;
+        }
+
+        //Método que comprueba (por nombre) si un restaurante ya está registrado
         private static bool ExisteRestaurante(string nombre)
         {
             string query = "SELECT COUNT(*) FROM Restaurantes WHERE nombre = @nombre";
@@ -57,7 +75,7 @@ namespace ServidorApiRestaurante.Controllers
 
         private static int InsertarRegistro(string connectionString, string nombre, string horaApertura, string horaCierre)
         {
-            // Consulta SQL parametrizada para insertar datos en la tabla 'Trabajadores'
+            // Consulta SQL parametrizada para insertar datos en la tabla 'Restaurantes'
             string insertQuery = "INSERT INTO Restaurantes (nombre, hora_apertura, hora_cierre) VALUES (@nombre, @hora_apertura, @hora_cierre)";
 
             // Usamos 'using' para asegurar que la conexión se cierre correctamente
@@ -100,6 +118,84 @@ namespace ServidorApiRestaurante.Controllers
                     // Capturamos cualquier otro error inesperado
                     Trace.WriteLine("Error inesperado: " + ex.Message);
                     return 0;
+                }
+            }
+        }
+
+        private static Restaurante ObtenerRestaurantePorNombre(string nombre)
+        {
+            using (var connection = new MySqlConnection(BDDController.ConnectionString))
+            {
+                try
+                {
+                    connection.Open();
+                    string query = "SELECT * FROM Restaurantes WHERE nombre = @nombre";
+
+                    using (var cmd = new MySqlCommand(query, connection))
+                    {
+                        cmd.Parameters.AddWithValue("@nombre", nombre);
+                        using (var reader = cmd.ExecuteReader())
+                        {
+                            if (reader.Read())
+                            {
+                                int Id = reader.GetInt32("ID");
+                                string Nombre = reader.GetString("Nombre");
+                                string Hora_Apertura = reader.GetString("Hora_Apertura");
+                                string Hora_Cierre = reader.GetString("Hora_Cierre");
+                                Restaurante restaurante = new Restaurante(Id, Nombre, Hora_Apertura, Hora_Cierre, new List<Mesa>(), new List<Trabajador>());
+
+                                return restaurante;
+                            }
+                            else
+                            {
+                                throw new Exception("Error al obtener trabajador");
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Trace.WriteLine("Error al obtener trabajador: " + ex.Message);
+                    throw new Exception("Error al obtener trabajador: " + ex.Message);
+                }
+            }
+        }
+
+        private static Restaurante ObtenerRestaurantePorId(int id)
+        {
+            using (var connection = new MySqlConnection(BDDController.ConnectionString))
+            {
+                try
+                {
+                    connection.Open();
+                    string query = "SELECT * FROM Restaurantes WHERE ID = @id";
+
+                    using (var cmd = new MySqlCommand(query, connection))
+                    {
+                        cmd.Parameters.AddWithValue("@id", id);
+                        using (var reader = cmd.ExecuteReader())
+                        {
+                            if (reader.Read())
+                            {
+                                int Id = reader.GetInt32("ID");
+                                string Nombre = reader.GetString("Nombre");
+                                string Hora_Apertura = reader.GetString("Hora_Apertura");
+                                string Hora_Cierre = reader.GetString("Hora_Cierre");
+                                Restaurante restaurante = new Restaurante(Id, Nombre, Hora_Apertura, Hora_Cierre, new List<Mesa>(), new List<Trabajador>());
+
+                                return restaurante;
+                            }
+                            else
+                            {
+                                throw new Exception("Error al obtener trabajador");
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Trace.WriteLine("Error al obtener trabajador: " + ex.Message);
+                    throw new Exception("Error al obtener trabajador: " + ex.Message);
                 }
             }
         }
