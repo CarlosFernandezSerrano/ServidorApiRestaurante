@@ -44,8 +44,13 @@ namespace ServidorApiRestaurante.Controllers
         public dynamic ObtenerRestauranteConId(int id)
         {
             Restaurante restaurante = ObtenerRestaurantePorId(id);
+            List<Mesa> mesas = ObtenerTodasLasMesasDeUnRestaurante(id);
+            List<Trabajador> trabajadores = ObtenerTodosLosTrabajadoresDeUnRestaurante(id);
+            restaurante.Mesas = mesas;
+            restaurante.Trabajadores = trabajadores;
             return restaurante;
         }
+
 
         //Método que comprueba (por nombre) si un restaurante ya está registrado
         private static bool ExisteRestaurante(string nombre)
@@ -196,6 +201,84 @@ namespace ServidorApiRestaurante.Controllers
                 {
                     Trace.WriteLine("Error al obtener trabajador: " + ex.Message);
                     throw new Exception("Error al obtener trabajador: " + ex.Message);
+                }
+            }
+        }
+
+        private static List<Mesa> ObtenerTodasLasMesasDeUnRestaurante(int restaurante_Id)
+        {
+            using (var connection = new MySqlConnection(BDDController.ConnectionString))
+            {
+                try
+                {
+                    connection.Open();
+                    string query = "SELECT * FROM Mesas WHERE Restaurante_ID = @restauranteId";
+
+                    using (var cmd = new MySqlCommand(query, connection))
+                    {
+                        cmd.Parameters.AddWithValue("@restauranteId", restaurante_Id);
+                        using (var reader = cmd.ExecuteReader())
+                        {
+                            List<Mesa> mesas = new List<Mesa>();
+
+                            while (reader.Read())
+                            {
+                                int id = reader.GetInt32("ID");
+                                float posX = reader.GetFloat("PosX");
+                                float posY = reader.GetFloat("PosY");
+                                float scaleX = reader.GetFloat("ScaleX");
+                                float scaleY = reader.GetFloat("ScaleY");
+                                bool disponible = reader.GetBoolean("Disponible");
+
+                                mesas.Add(new Mesa(id, posX, posY, scaleX, scaleY, disponible, restaurante_Id));
+                            }
+
+                            return mesas;
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Trace.WriteLine("Error al obtener mesas: " + ex.Message);
+                    throw new Exception("Error al obtener mesas: " + ex.Message);
+                }
+            }
+        }
+
+        private static List<Trabajador> ObtenerTodosLosTrabajadoresDeUnRestaurante(int restaurante_Id)
+        {
+            using (var connection = new MySqlConnection(BDDController.ConnectionString))
+            {
+                try
+                {
+                    connection.Open();
+                    string query = "SELECT * FROM Trabajadores WHERE Restaurante_ID = @restauranteId";
+
+                    using (var cmd = new MySqlCommand(query, connection))
+                    {
+                        cmd.Parameters.AddWithValue("@restauranteId", restaurante_Id);
+                        using (var reader = cmd.ExecuteReader())
+                        {
+                            List<Trabajador> trabajadores = new List<Trabajador>();
+
+                            while (reader.Read())
+                            {
+                                int id = reader.GetInt32("ID");
+                                string nombre = reader.GetString("Nombre");
+                                int rol_ID = reader.GetInt32("Rol_ID");
+                                int restaurante_ID = reader.GetInt32("Restaurante_ID");
+
+                                trabajadores.Add(new Trabajador(id, nombre, "", rol_ID, restaurante_ID));
+                            }
+
+                            return trabajadores;
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Trace.WriteLine("Error al obtener mesas: " + ex.Message);
+                    throw new Exception("Error al obtener mesas: " + ex.Message);
                 }
             }
         }
