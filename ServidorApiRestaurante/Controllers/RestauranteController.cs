@@ -20,7 +20,7 @@ namespace ServidorApiRestaurante.Controllers
             Trace.WriteLine("restaurante.HoraCierre " + restaurante.HoraCierre);
 
             // Compruebo si existe el trabajador antes de intentar insertarlo, para que no se creen IDs vacíos.
-            if (ExisteRestaurante(restaurante.Nombre))
+            if (ExisteRestauranteConNombre(restaurante.Nombre))
             {
                 return new { result = 2 };
             }
@@ -28,6 +28,34 @@ namespace ServidorApiRestaurante.Controllers
             {
                 int num = InsertarRegistro(BDDController.ConnectionString, restaurante.Nombre, restaurante.HoraApertura, restaurante.HoraCierre);
                 return new { result = num };
+            }
+        }
+
+        [HttpGet]
+        [Route("existe/{id}")]
+        public dynamic ExisteRestauranteConUnID(int id)
+        {
+            if (ExisteRestauranteConID(id))
+            {
+                return new { result = 1 };
+            }
+            else
+            {
+                return new { result = 0 };
+            }
+        }
+
+        [HttpGet]
+        [Route("existeConNombre/{nombre}")]
+        public dynamic ExisteRestauranteConUnNombre(string nombre)
+        {
+            if (ExisteRestauranteConNombre(nombre))
+            {
+                return new { result = 1 };
+            }
+            else
+            {
+                return new { result = 0 };
             }
         }
 
@@ -51,11 +79,60 @@ namespace ServidorApiRestaurante.Controllers
             return restaurante;
         }
 
+        [HttpPut]
+        [Route("actualizarRestaurante")]
+        public dynamic ActualizarRestauranteXid(Restaurante r)
+        {
+            Trace.WriteLine("Llega a actualizar restaurante");
+            int i = ActualizarRestaurantePorId(r);
+
+            // La actualización fue un éxito y se lo comunico al cliente
+            if (i.Equals(1))
+            {
+                return new
+                {
+                    result = 1
+                };
+            }
+            else
+            {
+                return new
+                {
+                    result = 0
+                };
+            }
+
+        }
+
+        private static bool ExisteRestauranteConID(int id)
+        {
+            string query = "SELECT COUNT(*) FROM Restaurantes WHERE ID = @id";
+
+            using (var connection = new MySqlConnection(BDDController.ConnectionString))
+            {
+                try
+                {
+                    connection.Open();
+                    using (var cmd = new MySqlCommand(query, connection))
+                    {
+                        cmd.Parameters.AddWithValue("@id", id);
+
+                        int count = Convert.ToInt32(cmd.ExecuteScalar()); // Obtiene el número de coincidencias
+                        return count > 0; // Si es mayor a 0, el trabajador existe
+                    }
+                }
+                catch (MySqlException ex)
+                {
+                    Trace.WriteLine("Error relacionado con MySQL: " + ex.Message);
+                    throw new Exception("Error al verificar la existencia del trabajador: " + ex.Message);
+                }
+            }
+        }
 
         //Método que comprueba (por nombre) si un restaurante ya está registrado
-        private static bool ExisteRestaurante(string nombre)
+        private static bool ExisteRestauranteConNombre(string nombre)
         {
-            string query = "SELECT COUNT(*) FROM Restaurantes WHERE nombre = @nombre";
+            string query = "SELECT COUNT(*) FROM Restaurantes WHERE Nombre = @nombre";
 
             using (var connection = new MySqlConnection(BDDController.ConnectionString))
             {
@@ -74,6 +151,48 @@ namespace ServidorApiRestaurante.Controllers
                 {
                     Trace.WriteLine("Error relacionado con MySQL: " + ex.Message);
                     throw new Exception("Error al verificar la existencia del trabajador: " + ex.Message);
+                }
+            }
+        }
+
+        private static int ActualizarRestaurantePorId(Restaurante r)
+        {
+            using (var connection = new MySqlConnection(BDDController.ConnectionString))
+            {
+                try
+                {
+                    connection.Open();
+                    string query = "UPDATE Restaurantes SET Nombre = @nombre, Hora_Apertura = @horaApertura, Hora_Cierre = @horaCierre WHERE ID = @id";
+
+                    using (var cmd = new MySqlCommand(query, connection))
+                    {
+                        // Asignación de valores a los parámetros
+                        cmd.Parameters.AddWithValue("@nombre", r.Nombre);
+                        cmd.Parameters.AddWithValue("@horaApertura", r.HoraApertura);
+                        cmd.Parameters.AddWithValue("@horaCierre", r.HoraCierre);
+                        cmd.Parameters.AddWithValue("@id", r.Id);
+
+                        // Ejecuta la sentencia y retorna el número de filas afectadas
+                        int rowsAffected = cmd.ExecuteNonQuery();
+
+                        if (rowsAffected > 0)
+                        {
+                            // La actualización fue exitosa
+                            Console.WriteLine("Registro actualizado correctamente.");
+                            return 1;
+                        }
+                        else
+                        {
+                            // No se encontró ningún registro con ese ID
+                            Console.WriteLine("No se actualizó ningún registro.");
+                            return 0;
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Trace.WriteLine("Error al actualizar trabajador: " + ex.Message);
+                    throw new Exception("Error al actualizar trabajador: " + ex.Message);
                 }
             }
         }

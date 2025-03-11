@@ -144,7 +144,6 @@ namespace ServidorApiRestaurante.Controllers
                     result = 0
                 };
             }
-                
         }
 
         [HttpDelete]
