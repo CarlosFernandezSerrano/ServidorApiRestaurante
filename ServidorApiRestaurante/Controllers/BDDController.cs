@@ -92,6 +92,8 @@ namespace ServidorApiRestaurante.Controllers
             ID INTEGER AUTO_INCREMENT PRIMARY KEY,  
             PosX FLOAT NOT NULL,  
             PosY FLOAT NOT NULL, 
+            Width FLOAT NOT NULL,
+            Height FLOAT NOT NULL,
             ScaleX FLOAT NOT NULL, 
             ScaleY FLOAT NOT NULL, 
             Disponible BOOLEAN NOT NULL DEFAULT 1,

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MySql.Data.MySqlClient;
+using Mysqlx.Datatypes;
 using ServidorApiRestaurante.Models;
 using System.Data;
 using System.Diagnostics;
@@ -13,7 +14,7 @@ namespace ServidorApiRestaurante.Controllers
     {
         [HttpPost]
         [Route("registrarRestaurante")]
-        public dynamic RegistroTrabajador(Restaurante restaurante)
+        public dynamic RegistroRestaurante(Restaurante restaurante)
         {
             Trace.WriteLine("restaurante.Nombre: " + restaurante.Nombre);
             Trace.WriteLine("restaurante.HoraApertura " + restaurante.HoraApertura);
@@ -86,8 +87,20 @@ namespace ServidorApiRestaurante.Controllers
             Trace.WriteLine("Llega a actualizar restaurante");
             int i = ActualizarRestaurantePorId(r);
 
+            int j = 0;
+            int contErrores = 0;
+            foreach (var mesa in r.Mesas)
+            {
+                j = MesaController.ActualizarMesa(mesa);
+
+                if (j.Equals(0))
+                {
+                    contErrores++;
+                }
+            }
+
             // La actualización fue un éxito y se lo comunico al cliente
-            if (i.Equals(1))
+            if (contErrores.Equals(0) && i.Equals(1))
             {
                 return new
                 {
@@ -101,7 +114,36 @@ namespace ServidorApiRestaurante.Controllers
                     result = 0
                 };
             }
+        }
 
+        [HttpPost]
+        [Route("registrarMesas")]
+        public dynamic RegistroMesas(Restaurante restaurante)
+        {
+            Trace.WriteLine("restaurante.Nombre: " + restaurante.Nombre);
+            Trace.WriteLine("restaurante.HoraApertura " + restaurante.HoraApertura);
+            Trace.WriteLine("restaurante.HoraCierre " + restaurante.HoraCierre);
+
+            int i = 0;
+            int contErrores = 0;
+            foreach (var mesa in restaurante.Mesas)
+            {
+                i = MesaController.RegistrarMesa(mesa);
+
+                if (i.Equals(0))
+                {
+                    contErrores++;
+                }
+            }
+
+            if (contErrores > 0)
+            {
+                return new { result = 0 };
+            }
+            else
+            {
+                return new { result = 1 };
+            }
         }
 
         private static bool ExisteRestauranteConID(int id)
@@ -345,11 +387,13 @@ namespace ServidorApiRestaurante.Controllers
                                 int id = reader.GetInt32("ID");
                                 float posX = reader.GetFloat("PosX");
                                 float posY = reader.GetFloat("PosY");
+                                float width = reader.GetFloat("Width");
+                                float height = reader.GetFloat("Height");
                                 float scaleX = reader.GetFloat("ScaleX");
                                 float scaleY = reader.GetFloat("ScaleY");
                                 bool disponible = reader.GetBoolean("Disponible");
 
-                                mesas.Add(new Mesa(id, posX, posY, scaleX, scaleY, disponible, restaurante_Id));
+                                mesas.Add(new Mesa(id, posX, posY, width, height, scaleX, scaleY, disponible, restaurante_Id));
                             }
 
                             return mesas;
