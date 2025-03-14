@@ -13,6 +13,7 @@ namespace ServidorApiRestaurante.Controllers
         [Route("borrarxid/{id}")]
         public dynamic BorrarMesaxID(string id)
         {
+            Trace.WriteLine("Llega a borrar mesa x ID");
             int num = EliminarMesaConID(id);
 
             if (num.Equals(1))
@@ -39,13 +40,9 @@ namespace ServidorApiRestaurante.Controllers
                     {
                         cmd.Parameters.AddWithValue("@id", mesa_ID);
 
-                        int count = Convert.ToInt32(cmd.ExecuteScalar()); // Obtiene el número de coincidencias
-                        
-                        if (count > 0) // Si es mayor a 0, la mesa ha sido eliminada correctamente.
-                        {
-                            return 1;
-                        }
-                        return 0;
+                        int filasAfectadas = cmd.ExecuteNonQuery(); // Devuelve el número de filas eliminadas
+
+                        return filasAfectadas > 0 ? 1 : 0;
                     }
                 }
                 catch (MySqlException ex)
