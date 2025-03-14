@@ -9,7 +9,52 @@ namespace ServidorApiRestaurante.Controllers
     [Route("mesa")] // Ruta: dirección/mesa/   https://localhost:7233/
     public class MesaController
     {
+        [HttpDelete]
+        [Route("borrarxid/{id}")]
+        public dynamic BorrarMesaxID(string id)
+        {
+            int num = EliminarMesaConID(id);
 
+            if (num.Equals(1))
+            {
+                return new { result = 1 };
+            }
+            else
+            {
+                return new { result = 0 };
+            }
+
+        }
+
+        private static int EliminarMesaConID(string mesa_ID)
+        {
+            string query = "DELETE FROM Mesas WHERE ID = @id";
+
+            using (var connection = new MySqlConnection(BDDController.ConnectionString))
+            {
+                try
+                {
+                    connection.Open();
+                    using (var cmd = new MySqlCommand(query, connection))
+                    {
+                        cmd.Parameters.AddWithValue("@id", mesa_ID);
+
+                        int count = Convert.ToInt32(cmd.ExecuteScalar()); // Obtiene el número de coincidencias
+                        
+                        if (count > 0) // Si es mayor a 0, la mesa ha sido eliminada correctamente.
+                        {
+                            return 1;
+                        }
+                        return 0;
+                    }
+                }
+                catch (MySqlException ex)
+                {
+                    Trace.WriteLine("Error relacionado con MySQL: " + ex.Message);
+                    throw new Exception("Error al verificar la existencia del trabajador: " + ex.Message);
+                }
+            }
+        }
 
         public static int RegistrarMesa(Mesa mesa)
         {

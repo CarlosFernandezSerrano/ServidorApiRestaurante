@@ -233,7 +233,7 @@ namespace ServidorApiRestaurante.Controllers
                 }
                 catch (Exception ex)
                 {
-                    Trace.WriteLine("Error al actualizar trabajador: " + ex.Message);
+                    Trace.WriteLine("Error al actualizar restaurante: " + ex.Message);
                     throw new Exception("Error al actualizar trabajador: " + ex.Message);
                 }
             }
