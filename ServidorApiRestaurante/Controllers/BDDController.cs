@@ -95,7 +95,8 @@ namespace ServidorApiRestaurante.Controllers
             Width FLOAT NOT NULL,
             Height FLOAT NOT NULL,
             ScaleX FLOAT NOT NULL, 
-            ScaleY FLOAT NOT NULL, 
+            ScaleY FLOAT NOT NULL,
+            CantPers INTEGER NOT NULL,
             Disponible BOOLEAN NOT NULL DEFAULT 1,
             Restaurante_ID INTEGER NOT NULL,        
             FOREIGN KEY (Restaurante_ID) REFERENCES Restaurantes(ID) ON DELETE CASCADE 
@@ -114,7 +115,7 @@ namespace ServidorApiRestaurante.Controllers
             string consultaDeTablaReservas = @"
             CREATE TABLE IF NOT EXISTS Reservas (
             ID INTEGER AUTO_INCREMENT PRIMARY KEY,
-            Fecha VARCHAR(9) NOT NULL,
+            Fecha VARCHAR(10) NOT NULL,
             Hora VARCHAR(9) NOT NULL,
             Estado VARCHAR(10) NOT NULL,            
             Cliente_ID INTEGER NOT NULL,
