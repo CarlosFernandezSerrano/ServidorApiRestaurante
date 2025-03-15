@@ -169,49 +169,22 @@ namespace ServidorApiRestaurante.Controllers
 
         public static void InsertarRegistrosRol()
         {
-            InsertarRegistroRol(ConnectionString, "Empleado");
-            InsertarRegistroRol(ConnectionString, "Gerente");
-        }
-        private static void InsertarRegistroRol(string connectionString, string nombre)
-        {
-            // Consulta SQL parametrizada para insertar datos en la tabla 'Rols'
-            string insertQuery = "INSERT INTO Rols (nombre) VALUES (@nombre)";
-
-            // Usamos 'using' para asegurar que la conexión se cierre correctamente
-            using (var connection = new MySqlConnection(connectionString))
+            List<string> roles = new List<string>{ "Empleado", "Gerente" };
+            foreach (string rol in roles)
             {
-                try
+                // Si no existe el rol, se crea
+                if (!RolController.Existe(rol))
                 {
-                    // Abrimos la conexión con la base de datos
-                    connection.Open();
-
-                    // Creamos el comando para ejecutar la consulta SQL
-                    using (var cmd = new MySqlCommand(insertQuery, connection))
-                    {
-                        // Asignamos los parámetros con sus respectivos valores
-                        cmd.Parameters.AddWithValue("@nombre", nombre);
-
-                        // Ejecutamos la consulta. ExecuteNonQuery devuelve el número de filas afectadas
-                        int filasAfectadas = cmd.ExecuteNonQuery();
-                        Trace.WriteLine("Registro insertado correctamente. Filas afectadas: " + filasAfectadas);
-                    }
+                    RolController.InsertarRegistroRol(ConnectionString, rol);
                 }
-                catch (MySqlException ex)
+                else
                 {
-                    // Capturamos errores relacionados con MySQL
-                    Trace.WriteLine("Error relacionado con MySQL: " + ex.Message);
-                }
-                catch (InvalidOperationException ex)
-                {
-                    // Capturamos errores de operación inválida en la conexión
-                    Trace.WriteLine("Error de operación inválida: " + ex.Message);
-                }
-                catch (Exception ex)
-                {
-                    // Capturamos cualquier otro error inesperado
-                    Trace.WriteLine("Error inesperado: " + ex.Message);
+                    Trace.WriteLine("El rol " + rol + " ya existe.");
                 }
             }
+            //RolController.InsertarRegistroRol(ConnectionString, "Empleado");
+            //RolController.InsertarRegistroRol(ConnectionString, "Gerente");
         }
+        
     }
 }
