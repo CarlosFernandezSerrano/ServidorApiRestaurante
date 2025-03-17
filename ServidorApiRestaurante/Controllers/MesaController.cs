@@ -56,7 +56,7 @@ namespace ServidorApiRestaurante.Controllers
         public static int RegistrarMesa(Mesa mesa)
         {
             // Consulta SQL parametrizada para insertar datos en la tabla 'Restaurantes'
-            string insertQuery = "INSERT INTO Mesas (PosX, PosY, Width, Height, ScaleX, ScaleY, Disponible, Restaurante_ID) VALUES (@PosX, @PosY, @Width, @Height, @ScaleX, @ScaleY, @Disponible, @Restaurante_ID)";
+            string insertQuery = "INSERT INTO Mesas (PosX, PosY, Width, Height, ScaleX, ScaleY, CantPers, Disponible, Restaurante_ID) VALUES (@PosX, @PosY, @Width, @Height, @ScaleX, @ScaleY, @CantPers, @Disponible, @Restaurante_ID)";
 
             // Usamos 'using' para asegurar que la conexión se cierre correctamente
             using (var connection = new MySqlConnection(BDDController.ConnectionString))
@@ -75,7 +75,8 @@ namespace ServidorApiRestaurante.Controllers
                         cmd.Parameters.AddWithValue("@Width", mesa.Width);
                         cmd.Parameters.AddWithValue("@Height", mesa.Height);
                         cmd.Parameters.AddWithValue("@ScaleX", mesa.ScaleX);
-                        cmd.Parameters.AddWithValue("@ScaleY", mesa.ScaleY);
+                        cmd.Parameters.AddWithValue("@ScaleY", mesa.ScaleY); 
+                        cmd.Parameters.AddWithValue("@CantPers", mesa.CantPers);
                         cmd.Parameters.AddWithValue("@Disponible", mesa.Disponible);
                         cmd.Parameters.AddWithValue("@Restaurante_ID", mesa.Restaurante_ID);
 
@@ -113,7 +114,7 @@ namespace ServidorApiRestaurante.Controllers
                 try
                 {
                     connection.Open();
-                    string query = "UPDATE Mesas SET PosX = @posX, PosY = @posY, Width = @width, Height = @height, ScaleX = @scaleX, ScaleY = @scaleY WHERE ID = @id";
+                    string query = "UPDATE Mesas SET PosX = @posX, PosY = @posY, Width = @width, Height = @height, ScaleX = @scaleX, ScaleY = @scaleY, CantPers = @cantPers WHERE ID = @id";
 
                     using (var cmd = new MySqlCommand(query, connection))
                     {
@@ -124,6 +125,7 @@ namespace ServidorApiRestaurante.Controllers
                         cmd.Parameters.AddWithValue("@height", mesa.Height);
                         cmd.Parameters.AddWithValue("@scaleX", mesa.ScaleX);
                         cmd.Parameters.AddWithValue("@scaleY", mesa.ScaleY);
+                        cmd.Parameters.AddWithValue("@cantPers", mesa.CantPers);
                         cmd.Parameters.AddWithValue("@id", mesa.Id);
 
                         // Ejecuta la sentencia y retorna el número de filas afectadas

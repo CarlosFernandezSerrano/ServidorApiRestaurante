@@ -391,9 +391,10 @@ namespace ServidorApiRestaurante.Controllers
                                 float height = reader.GetFloat("Height");
                                 float scaleX = reader.GetFloat("ScaleX");
                                 float scaleY = reader.GetFloat("ScaleY");
+                                int cantPers = reader.GetInt32("CantPers");
                                 bool disponible = reader.GetBoolean("Disponible");
 
-                                mesas.Add(new Mesa(id, posX, posY, width, height, scaleX, scaleY, disponible, restaurante_Id));
+                                mesas.Add(new Mesa(id, posX, posY, width, height, scaleX, scaleY, cantPers, disponible, restaurante_Id));
                             }
 
                             return mesas;
