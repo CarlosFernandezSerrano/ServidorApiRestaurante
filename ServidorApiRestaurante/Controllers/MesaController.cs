@@ -152,5 +152,43 @@ namespace ServidorApiRestaurante.Controllers
                 }
             }
         }
+
+        public static void PonerMesaDisponibleONoDisponible(int id_Mesa, bool b)
+        {
+            using (var connection = new MySqlConnection(BDDController.ConnectionString))
+            {
+                try
+                {
+                    connection.Open();
+                    string query = "UPDATE Mesas SET Disponible = @disponible WHERE ID = @id";
+
+                    using (var cmd = new MySqlCommand(query, connection))
+                    {
+                        // Asignación de valores a los parámetros
+                        cmd.Parameters.AddWithValue("@disponible", b);
+                        cmd.Parameters.AddWithValue("@id", id_Mesa);
+
+                        // Ejecuta la sentencia y retorna el número de filas afectadas
+                        int rowsAffected = cmd.ExecuteNonQuery();
+
+                        if (rowsAffected > 0)
+                        {
+                            // La actualización fue exitosa
+                            Console.WriteLine("Registro actualizado correctamente.");
+                        }
+                        else
+                        {
+                            // No se encontró ningún registro con ese ID
+                            Console.WriteLine("No se actualizó ningún registro.");
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Trace.WriteLine("Error al actualizar trabajador: " + ex.Message);
+                    throw new Exception("Error al actualizar trabajador: " + ex.Message);
+                }
+            }
+        }
     }
 }

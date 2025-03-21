@@ -118,7 +118,7 @@ namespace ServidorApiRestaurante.Controllers
             Fecha VARCHAR(10) NOT NULL,
             Hora VARCHAR(9) NOT NULL,
             Estado VARCHAR(10) NOT NULL,            
-            Cliente_ID INTEGER NOT NULL,
+            Cliente_ID INTEGER,
             Mesa_ID INTEGER NOT NULL,
             FOREIGN KEY (Cliente_ID) REFERENCES Clientes(ID),
             FOREIGN KEY (Mesa_ID) REFERENCES Mesas(ID) ON DELETE CASCADE,
