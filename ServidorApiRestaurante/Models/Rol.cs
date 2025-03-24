@@ -6,14 +6,6 @@ namespace ServidorApiRestaurante.Models
 {
     public class Rol
     {
-        /*public virtual int Id { get; set; }
-        public virtual string Nombre { get; set; } = string.Empty;
-
-
-        // Constructor sin parámetros requerido por NHibernate
-        public Rol() { }
-        */
-
         public int Id { get; set; }
         public string Nombre { get; set; }
 

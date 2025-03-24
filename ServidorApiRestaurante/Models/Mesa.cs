@@ -5,17 +5,6 @@ namespace ServidorApiRestaurante.Models
 {
     public class Mesa
     {
-        /*public virtual int Id { get; set; }
-        public virtual float PosX { get; set; }
-        public virtual float PosY { get; set; }
-        public virtual float ScaleX { get; set; }
-        public virtual float ScaleY { get; set; }
-        public virtual bool Disponible { get; set; }
-        public virtual Restaurante? Restaurante { get; set; }
-
-
-        public Mesa() { }*/
-
         public int Id { get; set; }
         public float PosX { get; set; }
         public float PosY { get; set; }
@@ -26,8 +15,9 @@ namespace ServidorApiRestaurante.Models
         public int CantPers { get; set; }
         public bool Disponible { get; set; }
         public int Restaurante_ID { get; set; }
+        public List<Reserva> Reservas { get; set; } = new List<Reserva>();
 
-        public Mesa(float posX, float posY, float width, float height, float scaleX, float scaleY, int cantPers, bool disponible, int restaurante_Id)
+        public Mesa(float posX, float posY, float width, float height, float scaleX, float scaleY, int cantPers, bool disponible, int restaurante_Id, List<Reserva> reservas)
         {
             this.PosX = posX;
             this.PosY = posY;
@@ -38,10 +28,11 @@ namespace ServidorApiRestaurante.Models
             this.CantPers = cantPers;
             this.Disponible = disponible;
             this.Restaurante_ID = restaurante_Id;
+            this.Reservas = reservas;
         }
 
         [JsonConstructor]
-        public Mesa(int id, float posX, float posY, float width, float height, float scaleX, float scaleY, int cantPers, bool disponible, int restaurante_Id)
+        public Mesa(int id, float posX, float posY, float width, float height, float scaleX, float scaleY, int cantPers, bool disponible, int restaurante_Id, List<Reserva> reservas)
         {
             this.Id = id;
             this.PosX = posX;
@@ -53,6 +44,7 @@ namespace ServidorApiRestaurante.Models
             this.CantPers = cantPers;
             this.Disponible = disponible;
             this.Restaurante_ID = restaurante_Id;
+            this.Reservas = reservas;
         }
 
         public string Mostrar()

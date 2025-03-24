@@ -394,7 +394,9 @@ namespace ServidorApiRestaurante.Controllers
                                 int cantPers = reader.GetInt32("CantPers");
                                 bool disponible = reader.GetBoolean("Disponible");
 
-                                mesas.Add(new Mesa(id, posX, posY, width, height, scaleX, scaleY, cantPers, disponible, restaurante_Id));
+                                List<Reserva> reservas = ReservaController.ObtenerReservasConIDMesa(id);
+                                
+                                mesas.Add(new Mesa(id, posX, posY, width, height, scaleX, scaleY, cantPers, disponible, restaurante_Id, reservas));
                             }
 
                             return mesas;

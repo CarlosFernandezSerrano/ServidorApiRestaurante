@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MySql.Data.MySqlClient;
 using ServidorApiRestaurante.Models;
+using System.Data;
 using System.Diagnostics;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
@@ -8,7 +9,7 @@ namespace ServidorApiRestaurante.Controllers
 {
     [ApiController]
     [Route("reserva")] // Ruta: dirección/reserva/   https://localhost:7233/
-    public class ReservasController
+    public class ReservaController
     {
 
         [HttpGet]
@@ -68,7 +69,7 @@ namespace ServidorApiRestaurante.Controllers
 
         private static bool ExisteReservaEnMesa_ID_EnFechaYHora(Reserva reserva)
         {
-            return false; // Mejorar en el futuro
+            return false; // Mejorar en el futuro ---------------------------------------------------------------------------------
         }
 
         private static int InsertarRegistro(Reserva reserva)
@@ -122,6 +123,48 @@ namespace ServidorApiRestaurante.Controllers
             }
         }
 
+        public static List<Reserva> ObtenerReservasConIDMesa(int id_Mesa)
+        {
+            using (var connection = new MySqlConnection(BDDController.ConnectionString))
+            {
+                try
+                {
+                    connection.Open();
+                    string query = "SELECT * FROM Reservas WHERE Mesa_ID = @mesa_ID";
 
+                    using (var cmd = new MySqlCommand(query, connection))
+                    {
+                        cmd.Parameters.AddWithValue("@mesa_ID", id_Mesa);
+                        using (var reader = cmd.ExecuteReader())
+                        {
+                            List<Reserva> reservas = new List<Reserva>();
+
+                            while (reader.Read())
+                            {
+                                int id = reader.GetInt32("ID");
+                                string fecha = reader.GetString("Fecha");
+                                string hora = reader.GetString("Hora");
+                                string estado = reader.GetString("Estado");
+                                int cantComensales = reader.GetInt32("CantComensales");
+                                int cliente_ID = reader.IsDBNull("Cliente_ID") ? 0 : reader.GetInt32("Cliente_ID");
+                                int mesa_ID = reader.GetInt32("Mesa_ID");
+
+                                reservas.Add(new Reserva(id, fecha, hora, estado, cantComensales, cliente_ID, mesa_ID));
+                            }
+                            return reservas;
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Trace.WriteLine("Error al obtener mesas: " + ex.Message);
+                    throw new Exception("Error al obtener mesas: " + ex.Message);
+                }
+            }
+        }
+
+
+
+    
     }
 }
