@@ -27,6 +27,25 @@ namespace ServidorApiRestaurante.Controllers
 
         }
 
+        [HttpPut]
+        [Route("actualizarCampoDisponible")]
+        public dynamic ActualizarCampoDisponibleMesa(Mesa mesa)
+        {
+            Trace.WriteLine("Llega a actualizar campo disponible de mesa");
+            
+            int num = ActualizarCampoDisponibleDeMesa(mesa.Id, mesa.Disponible);
+
+            if (num.Equals(1))
+            {
+                return new { result = 1 };
+            }
+            else
+            {
+                return new { result = 0 };
+            }
+        }
+        
+
         private static int EliminarMesaConID(string mesa_ID)
         {
             string query = "DELETE FROM Mesas WHERE ID = @id";
@@ -153,7 +172,7 @@ namespace ServidorApiRestaurante.Controllers
             }
         }
 
-        public static void PonerMesaDisponibleONoDisponible(int id_Mesa, bool b)
+        public static int ActualizarCampoDisponibleDeMesa(int id_Mesa, bool b)
         {
             using (var connection = new MySqlConnection(BDDController.ConnectionString))
             {
@@ -174,12 +193,14 @@ namespace ServidorApiRestaurante.Controllers
                         if (rowsAffected > 0)
                         {
                             // La actualización fue exitosa
-                            Console.WriteLine("Registro actualizado correctamente.");
+                            Trace.WriteLine("Registro actualizado correctamente.");
+                            return 1;
                         }
                         else
                         {
                             // No se encontró ningún registro con ese ID
-                            Console.WriteLine("No se actualizó ningún registro.");
+                            Trace.WriteLine("No se actualizó ningún registro.");
+                            return 0;
                         }
                     }
                 }
@@ -190,5 +211,7 @@ namespace ServidorApiRestaurante.Controllers
                 }
             }
         }
+
+        
     }
 }

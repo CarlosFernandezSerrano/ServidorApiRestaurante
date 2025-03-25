@@ -16,7 +16,7 @@ namespace ServidorApiRestaurante.Controllers
         [Route("existe/{id_Mesa}")]
         public dynamic ExisteReservaConUnaMesa_ID(int id_Mesa)
         {
-            if (ExisteReservaConMesa_ID(id_Mesa))
+            if (ExisteReservaConfirmadaEnMesa(id_Mesa))
             {
                 return new { result = 1 };
             }
@@ -42,9 +42,28 @@ namespace ServidorApiRestaurante.Controllers
             }
         }
 
-        private static bool ExisteReservaConMesa_ID(int id_Mesa)
+        [HttpPut]
+        [Route("actualizarEstadoReserva")]
+        public dynamic ActualizarEstadoReserva(Reserva reserva)
         {
-            string query = "SELECT COUNT(*) FROM Reservas WHERE Mesa_ID = @id";
+            Trace.WriteLine("Llega a actualizar estado de reserva");
+            int i = ActualizarEstadoDeReserva(reserva);
+
+            // La actualización fue un éxito y se lo comunico al cliente
+            if (i.Equals(1))
+            {
+                return new { result = 1 };
+            }
+            else
+            {
+                return new { result = 0 };
+            }
+        }
+
+        
+        private static bool ExisteReservaConfirmadaEnMesa(int id_Mesa)
+        {
+            string query = "SELECT COUNT(*) FROM Reservas WHERE Mesa_ID = @id AND Estado = @estado";
 
             using (var connection = new MySqlConnection(BDDController.ConnectionString))
             {
@@ -54,6 +73,7 @@ namespace ServidorApiRestaurante.Controllers
                     using (var cmd = new MySqlCommand(query, connection))
                     {
                         cmd.Parameters.AddWithValue("@id", id_Mesa);
+                        cmd.Parameters.AddWithValue("@estado", ""+EstadoReserva.Confirmada);
 
                         int count = Convert.ToInt32(cmd.ExecuteScalar()); // Obtiene el número de coincidencias
                         return count > 0; // Si es mayor a 0, el trabajador existe
@@ -99,7 +119,7 @@ namespace ServidorApiRestaurante.Controllers
                         // Ejecutamos la consulta. ExecuteNonQuery devuelve el número de filas afectadas
                         int filasAfectadas = cmd.ExecuteNonQuery();
                         Trace.WriteLine("Reserva insertada correctamente. Filas afectadas: " + filasAfectadas);
-                        MesaController.PonerMesaDisponibleONoDisponible(reserva.Mesa_Id, false); // False = no disponible, ya que hago una reserva para el momento y ocupo al instante la mesa
+                        MesaController.ActualizarCampoDisponibleDeMesa(reserva.Mesa_Id, false); // False = no disponible, ya que hago una reserva para el momento y ocupo al instante la mesa
                         return 1;
                     }
                 }
@@ -164,8 +184,46 @@ namespace ServidorApiRestaurante.Controllers
             }
         }
 
+        private static int ActualizarEstadoDeReserva(Reserva reserva)
+        {
+            using (var connection = new MySqlConnection(BDDController.ConnectionString))
+            {
+                try
+                {
+                    connection.Open();
+                    string query = "UPDATE Reservas SET Estado = @estado WHERE ID = @id";
+
+                    using (var cmd = new MySqlCommand(query, connection))
+                    {
+                        // Asignación de valores a los parámetros
+                        cmd.Parameters.AddWithValue("@estado", reserva.Estado);
+                        cmd.Parameters.AddWithValue("@id", reserva.Id);
+
+                        // Ejecuta la sentencia y retorna el número de filas afectadas
+                        int rowsAffected = cmd.ExecuteNonQuery();
+
+                        if (rowsAffected > 0)
+                        {
+                            // La actualización fue exitosa
+                            Console.WriteLine("Registro actualizado correctamente.");
+                            return 1;
+                        }
+                        else
+                        {
+                            // No se encontró ningún registro con ese ID
+                            Console.WriteLine("No se actualizó ningún registro.");
+                            return 0;
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Trace.WriteLine("Error al actualizar reserva: " + ex.Message);
+                    throw new Exception("Error al actualizar reserva: " + ex.Message);
+                }
+            }
+        }
 
 
-    
     }
 }

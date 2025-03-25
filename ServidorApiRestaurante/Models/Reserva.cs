@@ -4,9 +4,10 @@ namespace ServidorApiRestaurante.Models
 {
     public enum EstadoReserva
     {
-        Pendiente,
-        Confirmada,
-        Cancelada
+        Terminada, // Cuando acaba una reserva
+        Pendiente, // Para cuando la reserva esté en uso
+        Confirmada, // Para cuando se crea una reserva, pero aún no es el día y la hora
+        Cancelada // Cuando se cancela una reserva
     }
 
     public class Reserva
