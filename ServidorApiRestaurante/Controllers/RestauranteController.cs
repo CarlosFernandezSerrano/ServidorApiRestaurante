@@ -395,7 +395,7 @@ namespace ServidorApiRestaurante.Controllers
                                 bool disponible = reader.GetBoolean("Disponible");
 
                                 List<Reserva> reservas = ReservaController.ObtenerReservasConIDMesa(id);
-                                
+
                                 mesas.Add(new Mesa(id, posX, posY, width, height, scaleX, scaleY, cantPers, disponible, restaurante_Id, reservas));
                             }
 

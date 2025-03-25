@@ -75,7 +75,7 @@ namespace ServidorApiRestaurante.Controllers
         private static int InsertarRegistro(Reserva reserva)
         {
             // Consulta SQL parametrizada para insertar datos en la tabla 'Trabajadores'
-            string insertQuery = "INSERT INTO Reservas (Fecha, Hora, Estado, Cliente_ID, Mesa_ID) VALUES (@fecha, @hora, @estado, @cliente_id, @mesa_ID)";
+            string insertQuery = "INSERT INTO Reservas (Fecha, Hora, Estado, CantComensales, Cliente_ID, Mesa_ID) VALUES (@fecha, @hora, @estado, @cantComensales, @cliente_id, @mesa_ID)";
 
             // Usamos 'using' para asegurar que la conexión se cierre correctamente
             using (var connection = new MySqlConnection(BDDController.ConnectionString))
@@ -91,7 +91,8 @@ namespace ServidorApiRestaurante.Controllers
                         // Asignamos los parámetros con sus respectivos valores
                         cmd.Parameters.AddWithValue("@fecha", reserva.Fecha);
                         cmd.Parameters.AddWithValue("@hora", reserva.Hora);
-                        cmd.Parameters.AddWithValue("@estado", ""+EstadoReserva.Confirmada);
+                        cmd.Parameters.AddWithValue("@estado", ""+reserva.Estado);
+                        cmd.Parameters.AddWithValue("@cantComensales", reserva.CantComensales);
                         cmd.Parameters.AddWithValue("@cliente_id", null);
                         cmd.Parameters.AddWithValue("@mesa_ID", reserva.Mesa_Id);
 
