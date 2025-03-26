@@ -119,7 +119,7 @@ namespace ServidorApiRestaurante.Controllers
                         // Ejecutamos la consulta. ExecuteNonQuery devuelve el número de filas afectadas
                         int filasAfectadas = cmd.ExecuteNonQuery();
                         Trace.WriteLine("Reserva insertada correctamente. Filas afectadas: " + filasAfectadas);
-                        MesaController.ActualizarCampoDisponibleDeMesa(reserva.Mesa_Id, false); // False = no disponible, ya que hago una reserva para el momento y ocupo al instante la mesa
+                        //MesaController.ActualizarCampoDisponibleDeMesa(reserva.Mesa_Id, false); // False = no disponible, ya que hago una reserva para el momento y ocupo al instante la mesa
                         return 1;
                     }
                 }

@@ -122,9 +122,8 @@ namespace ServidorApiRestaurante.Controllers
             Cliente_ID INTEGER,
             Mesa_ID INTEGER NOT NULL,
             FOREIGN KEY (Cliente_ID) REFERENCES Clientes(ID),
-            FOREIGN KEY (Mesa_ID) REFERENCES Mesas(ID) ON DELETE CASCADE,
-            UNIQUE (Mesa_ID, Fecha, Hora)
-            );";
+            FOREIGN KEY (Mesa_ID) REFERENCES Mesas(ID) ON DELETE CASCADE 
+            );"; 
             CrearTabla(ConnectionString, consultaDeTablaReservas, "Reservas");
 
         }
