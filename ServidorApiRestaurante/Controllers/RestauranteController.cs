@@ -27,7 +27,7 @@ namespace ServidorApiRestaurante.Controllers
             }
             else
             {
-                int num = InsertarRegistro(BDDController.ConnectionString, restaurante.Nombre, restaurante.HoraApertura, restaurante.HoraCierre);
+                int num = InsertarRegistro(BDDController.ConnectionString, restaurante.Nombre, restaurante.HoraApertura, restaurante.HoraCierre, restaurante.TiempoParaComer);
                 return new { result = num };
             }
         }
@@ -204,7 +204,7 @@ namespace ServidorApiRestaurante.Controllers
                 try
                 {
                     connection.Open();
-                    string query = "UPDATE Restaurantes SET Nombre = @nombre, Hora_Apertura = @horaApertura, Hora_Cierre = @horaCierre WHERE ID = @id";
+                    string query = "UPDATE Restaurantes SET Nombre = @nombre, Hora_Apertura = @horaApertura, Hora_Cierre = @horaCierre, TiempoParaComer = @tiempoParaComer WHERE ID = @id";
 
                     using (var cmd = new MySqlCommand(query, connection))
                     {
@@ -212,6 +212,7 @@ namespace ServidorApiRestaurante.Controllers
                         cmd.Parameters.AddWithValue("@nombre", r.Nombre);
                         cmd.Parameters.AddWithValue("@horaApertura", r.HoraApertura);
                         cmd.Parameters.AddWithValue("@horaCierre", r.HoraCierre);
+                        cmd.Parameters.AddWithValue("@tiempoParaComer", r.TiempoParaComer);
                         cmd.Parameters.AddWithValue("@id", r.Id);
 
                         // Ejecuta la sentencia y retorna el número de filas afectadas
@@ -239,10 +240,10 @@ namespace ServidorApiRestaurante.Controllers
             }
         }
 
-        private static int InsertarRegistro(string connectionString, string nombre, string horaApertura, string horaCierre)
+        private static int InsertarRegistro(string connectionString, string nombre, string horaApertura, string horaCierre, string tiempoParaComer)
         {
             // Consulta SQL parametrizada para insertar datos en la tabla 'Restaurantes'
-            string insertQuery = "INSERT INTO Restaurantes (nombre, hora_apertura, hora_cierre) VALUES (@nombre, @hora_apertura, @hora_cierre)";
+            string insertQuery = "INSERT INTO Restaurantes (nombre, hora_apertura, hora_cierre, TiempoParaComer) VALUES (@nombre, @hora_apertura, @hora_cierre, @tiempoParaComer)";
 
             // Usamos 'using' para asegurar que la conexión se cierre correctamente
             using (var connection = new MySqlConnection(connectionString))
@@ -259,6 +260,7 @@ namespace ServidorApiRestaurante.Controllers
                         cmd.Parameters.AddWithValue("@nombre", nombre);
                         cmd.Parameters.AddWithValue("@hora_apertura", horaApertura);
                         cmd.Parameters.AddWithValue("@hora_cierre", horaCierre);
+                        cmd.Parameters.AddWithValue("@tiempoParaComer", tiempoParaComer);
 
                         // Ejecutamos la consulta. ExecuteNonQuery devuelve el número de filas afectadas
                         int filasAfectadas = cmd.ExecuteNonQuery();
@@ -308,7 +310,8 @@ namespace ServidorApiRestaurante.Controllers
                                 string Nombre = reader.GetString("Nombre");
                                 string Hora_Apertura = reader.GetString("Hora_Apertura");
                                 string Hora_Cierre = reader.GetString("Hora_Cierre");
-                                Restaurante restaurante = new Restaurante(Id, Nombre, Hora_Apertura, Hora_Cierre, new List<Mesa>(), new List<Trabajador>());
+                                string TiempoParaComer = reader.GetString("TiempoParaComer");
+                                Restaurante restaurante = new Restaurante(Id, Nombre, Hora_Apertura, Hora_Cierre, TiempoParaComer, new List<Mesa>(), new List<Trabajador>());
 
                                 return restaurante;
                             }
@@ -347,7 +350,8 @@ namespace ServidorApiRestaurante.Controllers
                                 string Nombre = reader.GetString("Nombre");
                                 string Hora_Apertura = reader.GetString("Hora_Apertura");
                                 string Hora_Cierre = reader.GetString("Hora_Cierre");
-                                Restaurante restaurante = new Restaurante(Id, Nombre, Hora_Apertura, Hora_Cierre, new List<Mesa>(), new List<Trabajador>());
+                                string TiempoParaComer = reader.GetString("TiempoParaComer");
+                                Restaurante restaurante = new Restaurante(Id, Nombre, Hora_Apertura, Hora_Cierre, TiempoParaComer, new List<Mesa>(), new List<Trabajador>());
 
                                 return restaurante;
                             }

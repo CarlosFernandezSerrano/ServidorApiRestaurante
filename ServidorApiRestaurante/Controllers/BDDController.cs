@@ -70,7 +70,8 @@ namespace ServidorApiRestaurante.Controllers
             ID INTEGER AUTO_INCREMENT PRIMARY KEY,  
             Nombre VARCHAR(40) UNIQUE NOT NULL,            
             Hora_Apertura VARCHAR(10) NOT NULL, 
-            Hora_Cierre VARCHAR(10) NOT NULL
+            Hora_Cierre VARCHAR(10) NOT NULL,
+            TiempoParaComer VARCHAR(10) NOT NULL
             );";
             CrearTabla(ConnectionString, consultaDeTablaRestaurantes, "Restaurantes");
 
