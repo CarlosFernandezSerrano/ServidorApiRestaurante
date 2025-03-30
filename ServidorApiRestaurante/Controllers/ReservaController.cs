@@ -30,16 +30,9 @@ namespace ServidorApiRestaurante.Controllers
         [Route("crearReserva")]
         public dynamic CrearReservaConFecha(Reserva reserva)
         {
-            if (!ExisteReservaEnMesa_ID_EnFechaYHora(reserva))
-            {
-                Trace.WriteLine("Pasa por método crearReserva");
-                int num = InsertarRegistro(reserva);
-                return new { result = num };
-            }
-            else
-            {
-                return new { result = 0 };
-            }
+            Trace.WriteLine("Pasa por método crearReserva");
+            int num = InsertarRegistro(reserva);
+            return new { result = num };
         }
 
         [HttpPut]
@@ -85,11 +78,6 @@ namespace ServidorApiRestaurante.Controllers
                     throw new Exception("Error al verificar la existencia del trabajador: " + ex.Message);
                 }
             }
-        }
-
-        private static bool ExisteReservaEnMesa_ID_EnFechaYHora(Reserva reserva)
-        {
-            return false; // Mejorar en el futuro ---------------------------------------------------------------------------------
         }
 
         private static int InsertarRegistro(Reserva reserva)
@@ -170,7 +158,17 @@ namespace ServidorApiRestaurante.Controllers
                                 int cliente_ID = reader.IsDBNull("Cliente_ID") ? 0 : reader.GetInt32("Cliente_ID");
                                 int mesa_ID = reader.GetInt32("Mesa_ID");
 
-                                reservas.Add(new Reserva(id, fecha, hora, estado, cantComensales, cliente_ID, mesa_ID));
+                                Cliente cliente;
+                                if (cliente_ID.Equals(0))
+                                {
+                                    cliente = new Cliente("", "", "");
+                                }
+                                else
+                                {
+                                    cliente = ClienteController.ObtenerClienteConID(cliente_ID);
+                                }
+
+                                reservas.Add(new Reserva(id, fecha, hora, estado, cantComensales, cliente_ID, mesa_ID, cliente));
                             }
                             return reservas;
                         }

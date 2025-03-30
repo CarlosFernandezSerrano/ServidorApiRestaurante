@@ -19,8 +19,9 @@ namespace ServidorApiRestaurante.Models
         public int CantComensales { get; set; }
         public int Cliente_Id { get; set; }
         public int Mesa_Id { get; set; }
+        public Cliente Cliente { get; set; }
 
-        public Reserva(string fecha, string hora, string estado, int cantComensales, int cliente_id, int mesa_id)
+        public Reserva(string fecha, string hora, string estado, int cantComensales, int cliente_id, int mesa_id, Cliente cliente)
         {
             this.Fecha = fecha;
             this.Hora = hora;
@@ -28,10 +29,11 @@ namespace ServidorApiRestaurante.Models
             this.CantComensales = cantComensales;
             this.Cliente_Id = cliente_id;
             this.Mesa_Id = mesa_id;
+            this.Cliente = cliente;
         }
 
         [JsonConstructor]
-        public Reserva(int id, string fecha, string hora, string estado, int cantComensales, int cliente_id, int mesa_id)
+        public Reserva(int id, string fecha, string hora, string estado, int cantComensales, int cliente_id, int mesa_id, Cliente cliente)
         {
             this.Id = id;
             this.Fecha = fecha;
@@ -40,6 +42,7 @@ namespace ServidorApiRestaurante.Models
             this.CantComensales = cantComensales;
             this.Cliente_Id = cliente_id;
             this.Mesa_Id = mesa_id;
+            this.Cliente = cliente;
         }
     }
 }
