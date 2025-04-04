@@ -35,9 +35,42 @@ namespace ServidorApiRestaurante.Controllers
             // Si la reserva tiene datos del cliente, se intenta crear la reserva desde el canvas "Crear Reserva" en el cliente
             if (reserva.Cliente.Dni.Trim().Length > 0)
             {
+                string dniCodificadoABase64 = AESCipher.Encrypt(reserva.Cliente.Dni);
+                bool existeDniCliente = ClienteController.ExisteDniCliente(dniCodificadoABase64);
 
-                int num = InsertarRegistro(reserva);
-                return new { result = num };
+                // Existe el cliente en la BDD
+                if (existeDniCliente)
+                {
+                    Cliente clienteEnBDD = ClienteController.ObtenerClientePorDni(dniCodificadoABase64);
+                    int resultadoActualización = ClienteController.ActualizarDatosDelClienteSiEsNecesario(reserva.Cliente, dniCodificadoABase64);
+                    // Si la actualización no ha sido un éxito, se envía la respuesta al cliente
+                    if (!resultadoActualización.Equals(1))
+                    {
+                        return new { result = resultadoActualización };
+                    }
+
+                    // El cliente se ha actualizado y ahora creo la reserva con sus datos
+                    reserva.Cliente_Id = clienteEnBDD.Id; // Coloco el ID del cliente existente en la nueva reserva que creo
+                    int num = InsertarRegistro(reserva);
+                    return new { result = num };
+                }
+                else // No existe el cliente en la BDD, así que lo creo
+                {
+                    int num = ClienteController.InsertarRegistro(reserva.Cliente);
+
+                    // El cliente se ha creado correctamente
+                    if (num.Equals(1))
+                    {
+                        // Obtengo todos los datos del cliente creado
+                        Cliente clienteEnBDD = ClienteController.ObtenerClientePorDni(dniCodificadoABase64);
+
+                        // Creo la reserva con los datos del cliente
+                        reserva.Cliente_Id = clienteEnBDD.Id; // Coloco el ID del cliente existente en la nueva reserva que creo
+                        int num3 = InsertarRegistro(reserva);
+                        return new { result = num3 };
+                    }
+                }
+                return new { result = 0 };
             }
             else // No hay datos para el cliente por lo que la reserva se crea para el momento
             {
@@ -94,7 +127,7 @@ namespace ServidorApiRestaurante.Controllers
 
         private static int InsertarRegistro(Reserva reserva)
         {
-            // Consulta SQL parametrizada para insertar datos en la tabla 'Trabajadores'
+            // Consulta SQL parametrizada para insertar datos en la tabla 'Reservas'
             string insertQuery = "INSERT INTO Reservas (Fecha, Hora, Estado, CantComensales, Cliente_ID, Mesa_ID) VALUES (@fecha, @hora, @estado, @cantComensales, @cliente_id, @mesa_ID)";
 
             // Usamos 'using' para asegurar que la conexión se cierre correctamente
