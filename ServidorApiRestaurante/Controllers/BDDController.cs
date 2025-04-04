@@ -1,5 +1,6 @@
 ﻿using MySql.Data.MySqlClient;
 using System.Diagnostics;
+using System.Security.Cryptography;
 
 namespace ServidorApiRestaurante.Controllers
 {
@@ -108,7 +109,7 @@ namespace ServidorApiRestaurante.Controllers
             CREATE TABLE IF NOT EXISTS Clientes (
             ID INTEGER AUTO_INCREMENT PRIMARY KEY,  
             Nombre VARCHAR(40) NOT NULL,
-            Dni VARCHAR(9) UNIQUE NOT NULL,
+            Dni VARCHAR(50) UNIQUE NOT NULL,
             Num_Telefono VARCHAR(15)
             );";
             CrearTabla(ConnectionString, consultaDeTablaClientes, "Clientes");
@@ -184,9 +185,8 @@ namespace ServidorApiRestaurante.Controllers
                     Trace.WriteLine("El rol " + rol + " ya existe.");
                 }
             }
-            //RolController.InsertarRegistroRol(ConnectionString, "Empleado");
-            //RolController.InsertarRegistroRol(ConnectionString, "Gerente");
         }
-        
+
+                
     }
 }

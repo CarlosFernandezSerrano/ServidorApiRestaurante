@@ -28,11 +28,23 @@ namespace ServidorApiRestaurante.Controllers
 
         [HttpPost]
         [Route("crearReserva")]
-        public dynamic CrearReservaConFecha(Reserva reserva)
+        public dynamic CrearReserva(Reserva reserva)
         {
             Trace.WriteLine("Pasa por método crearReserva");
-            int num = InsertarRegistro(reserva);
-            return new { result = num };
+
+            // Si la reserva tiene datos del cliente, se intenta crear la reserva desde el canvas "Crear Reserva" en el cliente
+            if (reserva.Cliente.Dni.Trim().Length > 0)
+            {
+
+                int num = InsertarRegistro(reserva);
+                return new { result = num };
+            }
+            else // No hay datos para el cliente por lo que la reserva se crea para el momento
+            {
+                reserva.Cliente_Id = 0;
+                int num = InsertarRegistro(reserva);
+                return new { result = num };
+            }                
         }
 
         [HttpPut]
@@ -101,13 +113,12 @@ namespace ServidorApiRestaurante.Controllers
                         cmd.Parameters.AddWithValue("@hora", reserva.Hora);
                         cmd.Parameters.AddWithValue("@estado", ""+reserva.Estado);
                         cmd.Parameters.AddWithValue("@cantComensales", reserva.CantComensales);
-                        cmd.Parameters.AddWithValue("@cliente_id", null);
+                        cmd.Parameters.AddWithValue("@cliente_id", reserva.Cliente_Id);
                         cmd.Parameters.AddWithValue("@mesa_ID", reserva.Mesa_Id);
 
                         // Ejecutamos la consulta. ExecuteNonQuery devuelve el número de filas afectadas
                         int filasAfectadas = cmd.ExecuteNonQuery();
                         Trace.WriteLine("Reserva insertada correctamente. Filas afectadas: " + filasAfectadas);
-                        //MesaController.ActualizarCampoDisponibleDeMesa(reserva.Mesa_Id, false); // False = no disponible, ya que hago una reserva para el momento y ocupo al instante la mesa
                         return 1;
                     }
                 }

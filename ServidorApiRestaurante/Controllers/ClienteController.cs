@@ -2,11 +2,14 @@
 using ServidorApiRestaurante.Models;
 using System.Data;
 using System.Diagnostics;
+using Microsoft.AspNetCore.Mvc; // Asegúrate de tener este using
 
 namespace ServidorApiRestaurante.Controllers
 {
     public class ClienteController
     {
+        
+
         public static Cliente ObtenerClienteConID(int id)
         {
             using (var connection = new MySqlConnection(BDDController.ConnectionString))
@@ -47,5 +50,32 @@ namespace ServidorApiRestaurante.Controllers
                 }
             }
         }
+
+        
+
+        public static void ComprobarQueFuncionaAES()
+        {
+            Trace.WriteLine("Clave (key): " + Convert.ToBase64String(AESCipher.key));
+            Trace.WriteLine("IV (iv): " + Convert.ToBase64String(AESCipher.iv));
+            string cadCifrada = AESCipher.Encrypt("Hola Bayan, qué bien que hicimos las paces, la mamá de la mamá");
+            Trace.WriteLine("+ + Palabra cifrada: " + cadCifrada);
+            //Trace.WriteLine("+ + Prueba: " + AESCipher.AESKeyBase64+"   ;    "+AESCipher.AESIVBase64);
+            string cadDescifrada = AESCipher.Decrypt(cadCifrada);
+
+            Trace.WriteLine("+ + Palabra descifrada: " + cadDescifrada);
+            Trace.WriteLine(" -- - - -- - - -- - -- - -- - -- - --  -");
+            for (int i = 0; i < 5; i++)
+            {
+                string cadCifrada2 = AESCipher.Encrypt("Hola Bayan, qué bien que hicimos las paces, la mamá de la mamá");
+                Trace.WriteLine("+ + Palabra cifrada: " + cadCifrada2);
+                //Trace.WriteLine("+ + Prueba: " + AESCipher.AESKeyBase64+"   ;    "+AESCipher.AESIVBase64);
+                string cadDescifrada2 = AESCipher.Decrypt(cadCifrada2);
+
+                Trace.WriteLine("+ + Palabra descifrada: " + cadDescifrada2);
+            }
+            
+
+        }
+
     }
 }

@@ -447,25 +447,5 @@ namespace ServidorApiRestaurante.Controllers
             }
         }
 
-        // La API se conecta a la BDD. Método que utilicé con SQLite. Ya no lo uso, se puede eliminar.
-        /*[HttpGet]
-        [Route("cbdd")]
-        public dynamic conectarConLaBDD()
-        {
-            // Obtén la ruta absoluta de la carpeta 'base_datos' dentro del proyecto
-            string folderPath = Path.Combine(Directory.GetCurrentDirectory(), "BDD"); // Ruta en la carpeta del ejecutable
-
-            // La ruta completa al archivo de la base de datos
-            string rutaBDDFichero = Path.Combine(folderPath, "miBaseDeDatos.db");
-
-            Trace.WriteLine("DataBasePath: " + rutaBDDFichero); //Mostrar contenido en salida
-            
-            //sQLiteController = new SQLiteController(rutaBDDFichero);
-            Trace.WriteLine("A: ");
-            //sQLiteController.CreateDatabase();
-            Trace.WriteLine("B: ");
-            return new { result = true };
-
-        }*/
     }
 }
