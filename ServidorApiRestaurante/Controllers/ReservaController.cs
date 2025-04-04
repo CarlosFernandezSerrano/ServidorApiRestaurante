@@ -42,7 +42,7 @@ namespace ServidorApiRestaurante.Controllers
                 if (existeDniCliente)
                 {
                     Cliente clienteEnBDD = ClienteController.ObtenerClientePorDni(dniCodificadoABase64);
-                    int resultadoActualización = ClienteController.ActualizarDatosDelClienteSiEsNecesario(reserva.Cliente, dniCodificadoABase64);
+                    int resultadoActualización = ClienteController.ActualizarDatosDelCliente(reserva.Cliente, dniCodificadoABase64);
                     // Si la actualización no ha sido un éxito, se envía la respuesta al cliente
                     if (!resultadoActualización.Equals(1))
                     {
@@ -74,7 +74,6 @@ namespace ServidorApiRestaurante.Controllers
             }
             else // No hay datos para el cliente por lo que la reserva se crea para el momento
             {
-                reserva.Cliente_Id = 0;
                 int num = InsertarRegistro(reserva);
                 return new { result = num };
             }                
@@ -146,7 +145,16 @@ namespace ServidorApiRestaurante.Controllers
                         cmd.Parameters.AddWithValue("@hora", reserva.Hora);
                         cmd.Parameters.AddWithValue("@estado", ""+reserva.Estado);
                         cmd.Parameters.AddWithValue("@cantComensales", reserva.CantComensales);
-                        cmd.Parameters.AddWithValue("@cliente_id", reserva.Cliente_Id);
+
+                        if (reserva.Cliente_Id.Equals(0))
+                        {
+                            cmd.Parameters.AddWithValue("@cliente_id", null); // No puedo poner 0 porque no existe en la bdd un registro en la tabla clientes con ID = 0
+                        }
+                        else
+                        {
+                            cmd.Parameters.AddWithValue("@cliente_id", reserva.Cliente_Id); 
+                        }
+
                         cmd.Parameters.AddWithValue("@mesa_ID", reserva.Mesa_Id);
 
                         // Ejecutamos la consulta. ExecuteNonQuery devuelve el número de filas afectadas

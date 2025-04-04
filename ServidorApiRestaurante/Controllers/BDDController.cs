@@ -110,7 +110,7 @@ namespace ServidorApiRestaurante.Controllers
             ID INTEGER AUTO_INCREMENT PRIMARY KEY,  
             Nombre VARCHAR(40) NOT NULL,
             Dni VARCHAR(50) UNIQUE NOT NULL,
-            Num_Telefono VARCHAR(15)
+            Num_Telefono VARCHAR(50)
             );";
             CrearTabla(ConnectionString, consultaDeTablaClientes, "Clientes");
 

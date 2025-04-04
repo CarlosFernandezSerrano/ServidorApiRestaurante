@@ -101,7 +101,7 @@ namespace ServidorApiRestaurante.Controllers
 
                         // Ejecutamos la consulta. ExecuteNonQuery devuelve el número de filas afectadas
                         int filasAfectadas = cmd.ExecuteNonQuery();
-                        Trace.WriteLine("Restaurante insertado correctamente. Filas afectadas: " + filasAfectadas);
+                        Trace.WriteLine("Mesa insertada correctamente. Filas afectadas: " + filasAfectadas);
                         return 1;
                     }
                 }

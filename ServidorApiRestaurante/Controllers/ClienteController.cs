@@ -34,9 +34,15 @@ namespace ServidorApiRestaurante.Controllers
 
                                 string dniOriginal = AESCipher.Decrypt(Dni);
 
-                                Cliente cliente = new Cliente(Id, Nombre, dniOriginal, NumTelefono);
-
-                                return cliente;
+                                // Si existe un número de teléfono, se desencripta y decodifica
+                                if (NumTelefono.Trim().Length > 0) 
+                                {
+                                    return new Cliente(Id, Nombre, dniOriginal, AESCipher.Decrypt(NumTelefono));
+                                }
+                                else
+                                {
+                                    return new Cliente(Id, Nombre, dniOriginal, NumTelefono);
+                                }
                             }
                             else
                             {
@@ -56,11 +62,11 @@ namespace ServidorApiRestaurante.Controllers
 
         
 
-        public static void ComprobarQueFuncionaAES()
+        /*public static void ComprobarQueFuncionaAES()
         {
             Trace.WriteLine("Clave (key): " + Convert.ToBase64String(AESCipher.key));
             Trace.WriteLine("IV (iv): " + Convert.ToBase64String(AESCipher.iv));
-            string cadCifrada = AESCipher.Encrypt("Hola Bayan, qué bien que hicimos las paces, la mamá de la mamá");
+            string cadCifrada = AESCipher.Encrypt("Hola qué tal");
             Trace.WriteLine("+ + Palabra cifrada: " + cadCifrada);
             //Trace.WriteLine("+ + Prueba: " + AESCipher.AESKeyBase64+"   ;    "+AESCipher.AESIVBase64);
             string cadDescifrada = AESCipher.Decrypt(cadCifrada);
@@ -69,16 +75,14 @@ namespace ServidorApiRestaurante.Controllers
             Trace.WriteLine(" -- - - -- - - -- - -- - -- - -- - --  -");
             for (int i = 0; i < 5; i++)
             {
-                string cadCifrada2 = AESCipher.Encrypt("Hola Bayan, qué bien que hicimos las paces, la mamá de la mamá");
+                string cadCifrada2 = AESCipher.Encrypt("Hola qué tal");
                 Trace.WriteLine("+ + Palabra cifrada: " + cadCifrada2);
                 //Trace.WriteLine("+ + Prueba: " + AESCipher.AESKeyBase64+"   ;    "+AESCipher.AESIVBase64);
                 string cadDescifrada2 = AESCipher.Decrypt(cadCifrada2);
 
                 Trace.WriteLine("+ + Palabra descifrada: " + cadDescifrada2);
             }
-            
-
-        }
+        }*/
 
         public static bool ExisteDniCliente(string dniBase64)
         {
@@ -146,18 +150,18 @@ namespace ServidorApiRestaurante.Controllers
             }
         }
 
-        public static int ActualizarDatosDelClienteSiEsNecesario(Cliente cliente, string dniBase64)
+        public static int ActualizarDatosDelCliente(Cliente cliente, string dniBase64)
         {
             // Actualizo tanto el nombre como el número de teléfono si están puestos al crear la reserva
             if (cliente.Nombre.Trim().Length > 0 && cliente.NumTelefono.Trim().Length > 0)
             {
-                return ActualizarNombreYNumTeléfono(cliente.Nombre, cliente.NumTelefono, dniBase64);
+                return ActualizarNombreYNumTeléfono(cliente.Nombre, AESCipher.Encrypt(cliente.NumTelefono), dniBase64);
             }
 
             // Si el empleado ha puesto un número de teléfono, se actualiza
             if (cliente.NumTelefono.Trim().Length > 0)
             {
-                return ActualizarNumTeléfono(cliente.NumTelefono, dniBase64);
+                return ActualizarNumTeléfono(AESCipher.Encrypt(cliente.NumTelefono), dniBase64);
             }
             else // El empleado (en la app clientee) tiene que poner el nombre de la persona del dni si o sí. Por lo que si no ha puesto un número de teléfono, se actualiza sólo el nombre. Por si quiere que le llamen de otra forma
             {
@@ -305,7 +309,15 @@ namespace ServidorApiRestaurante.Controllers
                         // Asignamos los parámetros con sus respectivos valores
                         cmd.Parameters.AddWithValue("@nombre", cliente.Nombre);
                         cmd.Parameters.AddWithValue("@dni", AESCipher.Encrypt(cliente.Dni));
-                        cmd.Parameters.AddWithValue("@num_telefono", cliente.NumTelefono);
+
+                        if (cliente.NumTelefono.Trim().CompareTo("") == 0)
+                        {
+                            cmd.Parameters.AddWithValue("@num_telefono", cliente.NumTelefono);
+                        }
+                        else // Si se ha puesto un número de teléfono, se encripta y posteriormente codifica a Base64
+                        {
+                            cmd.Parameters.AddWithValue("@num_telefono", AESCipher.Encrypt(cliente.NumTelefono));
+                        }
 
                         // Ejecutamos la consulta. ExecuteNonQuery devuelve el número de filas afectadas
                         int filasAfectadas = cmd.ExecuteNonQuery();
