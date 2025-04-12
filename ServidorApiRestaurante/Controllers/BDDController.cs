@@ -109,7 +109,7 @@ namespace ServidorApiRestaurante.Controllers
             CREATE TABLE IF NOT EXISTS Clientes (
             ID INTEGER AUTO_INCREMENT PRIMARY KEY,  
             Nombre VARCHAR(40) NOT NULL,
-            Dni VARCHAR(50) UNIQUE NOT NULL,
+            Dni VARCHAR(50) NOT NULL,
             Num_Telefono VARCHAR(50)
             );";
             CrearTabla(ConnectionString, consultaDeTablaClientes, "Clientes");

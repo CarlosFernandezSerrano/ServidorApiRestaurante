@@ -36,7 +36,21 @@ namespace ServidorApiRestaurante.Controllers
             if (reserva.Cliente.Dni.Trim().Length > 0)
             {
                 string dniCodificadoABase64 = AESCipher.Encrypt(reserva.Cliente.Dni);
-                bool existeDniCliente = ClienteController.ExisteDniCliente(dniCodificadoABase64);
+
+                int num = ClienteController.InsertarRegistro(reserva.Cliente);
+
+                // El cliente se ha creado correctamente
+                if (num.Equals(1))
+                {
+                    // Obtengo todos los datos del cliente creado
+                    Cliente clienteEnBDD = ClienteController.ObtenerClientePorDni(dniCodificadoABase64);
+
+                    // Creo la reserva con los datos del cliente
+                    reserva.Cliente_Id = clienteEnBDD.Id; // Coloco el ID del cliente existente en la nueva reserva que creo
+                    int num3 = InsertarRegistro(reserva);
+                    return new { result = num3 };
+                }
+                /*bool existeDniCliente = ClienteController.ExisteDniCliente(dniCodificadoABase64);
 
                 // Existe el cliente en la BDD
                 if (existeDniCliente)
@@ -69,7 +83,7 @@ namespace ServidorApiRestaurante.Controllers
                         int num3 = InsertarRegistro(reserva);
                         return new { result = num3 };
                     }
-                }
+                }*/
                 return new { result = 0 };
             }
             else // No hay datos para el cliente por lo que la reserva se crea para el momento

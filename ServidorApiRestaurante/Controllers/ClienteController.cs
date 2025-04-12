@@ -116,7 +116,7 @@ namespace ServidorApiRestaurante.Controllers
                 try
                 {
                     connection.Open();
-                    string query = "SELECT * FROM Clientes WHERE Dni = @dni";
+                    string query = "SELECT * FROM Clientes WHERE Dni = @dni ORDER BY ID DESC LIMIT 1";
 
                     using (var cmd = new MySqlCommand(query, connection))
                     {
