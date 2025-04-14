@@ -33,7 +33,7 @@ namespace ServidorApiRestaurante.Controllers
             if (ExisteTrabajadorConID(id))
             {
                 Trabajador t = ObtenerTrabajadorPorId(id);
-                t.Id = 0; t.Nombre = "";
+                t.Id = 0;
                 return t;
             }
             else
