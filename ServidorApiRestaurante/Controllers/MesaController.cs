@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using MySql.Data.MySqlClient;
 using ServidorApiRestaurante.Models;
 using System.Diagnostics;
@@ -7,8 +8,11 @@ namespace ServidorApiRestaurante.Controllers
 {
     [ApiController]
     [Route("mesa")] // Ruta: dirección/mesa/   https://localhost:7233/
-    public class MesaController
+    public class MesaController : ControllerBase
     {
+
+        [Authorize]
+        [ValidarTokenFilterController]
         [HttpDelete]
         [Route("borrarxid/{id}")]
         public dynamic BorrarMesaxID(string id)
@@ -27,6 +31,8 @@ namespace ServidorApiRestaurante.Controllers
 
         }
 
+        [Authorize]
+        [ValidarTokenFilterController]
         [HttpPut]
         [Route("actualizarCampoDisponible")]
         public dynamic ActualizarCampoDisponibleMesa(Mesa mesa)

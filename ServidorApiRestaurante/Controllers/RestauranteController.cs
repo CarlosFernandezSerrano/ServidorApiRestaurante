@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using MySql.Data.MySqlClient;
 using Mysqlx.Datatypes;
 using ServidorApiRestaurante.Models;
@@ -12,6 +13,8 @@ namespace ServidorApiRestaurante.Controllers
     [Route("restaurante")] // Ruta: dirección/restaurante/   https://localhost:7233/
     public class RestauranteController : ControllerBase
     {
+        [Authorize]
+        [ValidarTokenFilterController]
         [HttpPost]
         [Route("registrarRestaurante")]
         public dynamic RegistroRestaurante(Restaurante restaurante)
@@ -32,6 +35,8 @@ namespace ServidorApiRestaurante.Controllers
             }
         }
 
+        [Authorize]
+        [ValidarTokenFilterController]
         [HttpGet]
         [Route("existe/{id}")]
         public dynamic ExisteRestauranteConUnID(int id)
@@ -46,6 +51,8 @@ namespace ServidorApiRestaurante.Controllers
             }
         }
 
+        [Authorize]
+        [ValidarTokenFilterController]
         [HttpGet]
         [Route("existeConNombre/{nombre}")]
         public dynamic ExisteRestauranteConUnNombre(string nombre)
@@ -60,6 +67,8 @@ namespace ServidorApiRestaurante.Controllers
             }
         }
 
+        [Authorize]
+        [ValidarTokenFilterController]
         [HttpGet]
         [Route("getRestaurantePorNombre/{nombre}")]
         public dynamic ObtenerRestauranteConNombre(string nombre)
@@ -68,6 +77,8 @@ namespace ServidorApiRestaurante.Controllers
             return restaurante;
         }
 
+        [Authorize]
+        [ValidarTokenFilterController]
         [HttpGet]
         [Route("getRestaurantePorId/{id}")]
         public dynamic ObtenerRestauranteConId(int id)
@@ -80,6 +91,8 @@ namespace ServidorApiRestaurante.Controllers
             return restaurante;
         }
 
+        [Authorize]
+        [ValidarTokenFilterController]
         [HttpPut]
         [Route("actualizarRestaurante")]
         public dynamic ActualizarRestauranteXid(Restaurante r)
@@ -116,6 +129,8 @@ namespace ServidorApiRestaurante.Controllers
             }
         }
 
+        [Authorize]
+        [ValidarTokenFilterController]
         [HttpPost]
         [Route("registrarMesas")]
         public dynamic RegistroMesas(Restaurante restaurante)

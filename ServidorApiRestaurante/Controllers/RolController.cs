@@ -1,9 +1,10 @@
-﻿using MySql.Data.MySqlClient;
+﻿using Microsoft.AspNetCore.Mvc;
+using MySql.Data.MySqlClient;
 using System.Diagnostics;
 
 namespace ServidorApiRestaurante.Controllers
 {
-    public class RolController
+    public class RolController : ControllerBase
     {
         public static bool Existe(string rol)
         {

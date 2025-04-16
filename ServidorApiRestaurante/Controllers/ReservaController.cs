@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using MySql.Data.MySqlClient;
 using ServidorApiRestaurante.Models;
 using System.Data;
@@ -9,9 +10,11 @@ namespace ServidorApiRestaurante.Controllers
 {
     [ApiController]
     [Route("reserva")] // Ruta: dirección/reserva/   https://localhost:7233/
-    public class ReservaController
+    public class ReservaController : ControllerBase
     {
 
+        [Authorize]
+        [ValidarTokenFilterController]
         [HttpGet]
         [Route("existe/{id_Mesa}")]
         public dynamic ExisteReservaConUnaMesa_ID(int id_Mesa)
@@ -26,6 +29,8 @@ namespace ServidorApiRestaurante.Controllers
             }
         }
 
+        [Authorize]
+        [ValidarTokenFilterController]
         [HttpPost]
         [Route("crearReserva")]
         public dynamic CrearReserva(Reserva reserva)
@@ -93,6 +98,8 @@ namespace ServidorApiRestaurante.Controllers
             }                
         }
 
+        [Authorize]
+        [ValidarTokenFilterController]
         [HttpPut]
         [Route("actualizarEstadoReserva")]
         public dynamic ActualizarEstadoReserva(Reserva reserva)

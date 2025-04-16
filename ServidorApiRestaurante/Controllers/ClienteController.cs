@@ -7,9 +7,8 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace ServidorApiRestaurante.Controllers
 {
-    public class ClienteController
+    public class ClienteController : ControllerBase
     {
-        
 
         public static Cliente ObtenerClienteConID(int id)
         {

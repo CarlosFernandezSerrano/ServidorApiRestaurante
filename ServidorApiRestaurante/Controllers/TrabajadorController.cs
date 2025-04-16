@@ -1,8 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using MySql.Data.MySqlClient;
 using ServidorApiRestaurante.Models;
 using System.Data;
 using System.Diagnostics;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using static System.Runtime.InteropServices.JavaScript.JSType;
@@ -13,7 +18,9 @@ namespace ServidorApiRestaurante.Controllers
     [Route("trabajador")] // Ruta: dirección/trabajador/   https://localhost:7233/
     public class TrabajadorController : ControllerBase
     {
-                
+
+        [Authorize]
+        [ValidarTokenFilterController]
         [HttpPost]
         [Route("obtenerTrabajadorPorNombre")]
         public dynamic ObtenerTrabajadorConNombre(Trabajador t)
@@ -26,6 +33,8 @@ namespace ServidorApiRestaurante.Controllers
             //return new { result = id  };
         }
 
+        [Authorize]
+        [ValidarTokenFilterController]
         [HttpGet]
         [Route("obtenerTrabajadorPorId/{id}")]
         public dynamic GetRol_IDTrabajador(int id)
@@ -56,8 +65,25 @@ namespace ServidorApiRestaurante.Controllers
             else
             {
                 int num = InsertarRegistro(BDDController.ConnectionString, trabajador.Nombre, HashearContraseña(trabajador.Password));
-                return new { result = num };
+                
+                if (!num.Equals(1))
+                {
+                    return new { result = num };
+                    
+                }
+                else
+                {
+                    Trabajador t = ObtenerTrabajadorPorNombre(trabajador.Nombre);
+                    return CreaciónDeTokenParaCliente(t);
+                }                    
             }
+        }
+
+        public IConfiguration _configuration;
+
+        public TrabajadorController(IConfiguration configuration)
+        {
+            _configuration = configuration;
         }
 
         [HttpPost]
@@ -73,7 +99,11 @@ namespace ServidorApiRestaurante.Controllers
                 if (passwordCorrecta)
                 {
                     Trace.WriteLine("Contraseña correcta");
-                    return new { result = 1 };
+
+                    Trabajador t = ObtenerTrabajadorPorNombre(trabajador.Nombre);
+                    return CreaciónDeTokenParaCliente(t);
+
+                    //return new { result = 1 };
                 }
                 else
                 {
@@ -87,7 +117,39 @@ namespace ServidorApiRestaurante.Controllers
             }
         }
 
+        private dynamic CreaciónDeTokenParaCliente(Trabajador trabajador)
+        {
+            var jwt = _configuration.GetSection("Jwt").Get<Jwt>();
 
+            var claims = new[]
+            {
+                new Claim(JwtRegisteredClaimNames.Sub, jwt.Subject),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                new Claim(JwtRegisteredClaimNames.Iat, DateTime.UtcNow.ToString()),
+                new Claim("id", trabajador.Id.ToString()), // qué es mejor 
+                new Claim("id", trabajador.Nombre)
+            };
+
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwt.Key));
+            var singIn = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            var token = new JwtSecurityToken(
+                jwt.Issuer,
+                jwt.Audience,
+                claims,
+                signingCredentials: singIn
+                );
+
+            return new
+            {
+                result = 1,
+                message = "exito",
+                token = new JwtSecurityTokenHandler().WriteToken(token)
+            };
+        }
+
+        [Authorize]
+        [ValidarTokenFilterController]
         [HttpGet]
         [Route("existe/{id}")]
         public dynamic ExisteTrabajador(int id) 
@@ -102,27 +164,8 @@ namespace ServidorApiRestaurante.Controllers
             }
         }
 
-        
-
-        [HttpGet]
-        [Route("listar")]
-        public dynamic listarCliente()
-        {
-            return new { sucess = 232 };            
-        }
-
-        [HttpPost]
-        [Route("eliminar")]
-        public dynamic eliminarCliente(Trabajador cliente)
-        {
-            return new
-            {
-                success = true,
-                message = "cliente eliminado",
-                result = cliente
-            };
-        }
-
+        [Authorize]
+        [ValidarTokenFilterController]
         [HttpPut]
         [Route("actualizarTrabajador")]
         public dynamic ActualizarTrabajadorXid(Trabajador t)
@@ -146,28 +189,61 @@ namespace ServidorApiRestaurante.Controllers
             }
         }
 
+        [Authorize]
+        [ValidarTokenFilterController]
         [HttpDelete]
-        [Route("borrarxid/{id}")]
-        public dynamic borrarClientexid(string id)
+        [Route("eliminarxid/{id}")]
+        public dynamic EliminarTrabajadorxid(string id)
         {
-            if (id.CompareTo("1") == 0)
+            Trace.WriteLine("Llega a eliminar trabajador x ID");
+            int num = EliminarTrabajadorConID(id);
+
+            if (num.Equals(1))
             {
+                Trace.WriteLine("Cliente con id " + id + " eliminado.");
                 return new
                 {
-                    result = "Cliente con id " + id + " eliminado."
+                    result = 1
                 };
             }
             else
             {
+                Trace.WriteLine("Cliente con id " + id + " no eliminado.");
                 return new
                 {
-                    result = "Cliente con id " + id + " no eliminado."
+                    result = 0
                 };
             }
                 
         }
 
-        
+        private static int EliminarTrabajadorConID(string trabajador_id)
+        {
+            string query = "DELETE FROM Trabajadores WHERE ID = @id";
+
+            using (var connection = new MySqlConnection(BDDController.ConnectionString))
+            {
+                try
+                {
+                    connection.Open();
+                    using (var cmd = new MySqlCommand(query, connection))
+                    {
+                        cmd.Parameters.AddWithValue("@id", trabajador_id);
+
+                        int filasAfectadas = cmd.ExecuteNonQuery(); // Devuelve el número de filas eliminadas
+
+                        return filasAfectadas > 0 ? 1 : 0;
+                    }
+                }
+                catch (MySqlException ex)
+                {
+                    Trace.WriteLine("Error relacionado con MySQL: " + ex.Message);
+                    throw new Exception("Error al verificar la existencia del trabajador: " + ex.Message);
+                }
+            }
+        }
+
+
 
         /*[HttpPatch]
         [Route("actualizarClientexidValorEspecífico/{id}")]
@@ -227,7 +303,7 @@ namespace ServidorApiRestaurante.Controllers
         }
 
         //Método que comprueba (por id) si un trabajador está registrado
-        private static bool ExisteTrabajadorConID(int id)
+        public static bool ExisteTrabajadorConID(int id)
         {
             string query = "SELECT COUNT(*) FROM Trabajadores WHERE ID = @id";
 
