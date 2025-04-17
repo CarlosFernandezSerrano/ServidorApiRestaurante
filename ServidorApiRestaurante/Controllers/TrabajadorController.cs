@@ -191,6 +191,7 @@ namespace ServidorApiRestaurante.Controllers
 
         [Authorize]
         [ValidarTokenFilterController]
+        [SoloAdminsFilterController]
         [HttpDelete]
         [Route("eliminarxid/{id}")]
         public dynamic EliminarTrabajadorxid(string id)
@@ -417,7 +418,7 @@ namespace ServidorApiRestaurante.Controllers
             }
         }
 
-        private static Trabajador ObtenerTrabajadorPorId(int id)
+        public static Trabajador ObtenerTrabajadorPorId(int id)
         {
             using (var connection = new MySqlConnection(BDDController.ConnectionString))
             {

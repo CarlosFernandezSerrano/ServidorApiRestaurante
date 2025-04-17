@@ -13,6 +13,7 @@ namespace ServidorApiRestaurante.Controllers
 
         [Authorize]
         [ValidarTokenFilterController]
+        [SoloAdminsFilterController]
         [HttpDelete]
         [Route("borrarxid/{id}")]
         public dynamic BorrarMesaxID(string id)

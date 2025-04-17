@@ -131,6 +131,7 @@ namespace ServidorApiRestaurante.Controllers
 
         [Authorize]
         [ValidarTokenFilterController]
+        [SoloAdminsFilterController]
         [HttpPost]
         [Route("registrarMesas")]
         public dynamic RegistroMesas(Restaurante restaurante)

@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MySql.Data.MySqlClient;
+using ServidorApiRestaurante.Models;
+using System.Data;
 using System.Diagnostics;
 
 namespace ServidorApiRestaurante.Controllers
@@ -69,6 +71,43 @@ namespace ServidorApiRestaurante.Controllers
                 {
                     // Capturamos cualquier otro error inesperado
                     Trace.WriteLine("Error inesperado: " + ex.Message);
+                }
+            }
+        }
+
+        public static Rol ObtenerRolPorId(int rol_Id)
+        {
+            using (var connection = new MySqlConnection(BDDController.ConnectionString))
+            {
+                try
+                {
+                    connection.Open();
+                    string query = "SELECT * FROM Rols WHERE ID = @id";
+
+                    using (var cmd = new MySqlCommand(query, connection))
+                    {
+                        cmd.Parameters.AddWithValue("@id", rol_Id);
+                        using (var reader = cmd.ExecuteReader())
+                        {
+                            if (reader.Read())
+                            {
+                                int Id = reader.GetInt32("ID");
+                                string Nombre = reader.GetString("Nombre");
+                                Rol rol = new Rol(Id, Nombre);
+
+                                return rol;
+                            }
+                            else
+                            {
+                                throw new Exception("Error al obtener trabajador");
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Trace.WriteLine("Error al obtener trabajador: " + ex.Message);
+                    throw new Exception("Error al obtener trabajador: " + ex.Message);
                 }
             }
         }
