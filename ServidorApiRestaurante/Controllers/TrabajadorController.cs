@@ -247,6 +247,27 @@ namespace ServidorApiRestaurante.Controllers
             return trabajadores;
         }
 
+        [Authorize]
+        [ValidarTokenFilterController]
+        [SoloAdminsFilterController]
+        [HttpPut]
+        [Route("actualizarRestauranteIDTrabajador")]
+        public dynamic ActualizarRestauranteIDTrabajadorXid(Trabajador t)
+        {
+            Trace.WriteLine("Llega a actualizar Restaurante_ID del trabajador");
+            int i = ActualizarRestauranteIDTrabajadorPorId(t);
+
+            // La actualización fue un éxito y se lo comunico al cliente
+            if (i.Equals(1))
+            {
+                return new { result = 1 };
+            }
+            else
+            {
+                return new { result = 0 };
+            }
+        }
+
         private static List<Trabajador> ObtenerTrabajadoresSinRestaurante()
         {
             using (var connection = new MySqlConnection(BDDController.ConnectionString))
@@ -600,6 +621,46 @@ namespace ServidorApiRestaurante.Controllers
                         // Asignación de valores a los parámetros
                         cmd.Parameters.AddWithValue("@nombre", t.Nombre);
                         cmd.Parameters.AddWithValue("@rol_id", t.Rol_Id);
+                        cmd.Parameters.AddWithValue("@restaurante_id", t.Restaurante_Id);
+                        cmd.Parameters.AddWithValue("@id", t.Id);
+
+                        // Ejecuta la sentencia y retorna el número de filas afectadas
+                        int rowsAffected = cmd.ExecuteNonQuery();
+
+                        if (rowsAffected > 0)
+                        {
+                            // La actualización fue exitosa
+                            Console.WriteLine("Registro actualizado correctamente.");
+                            return 1;
+                        }
+                        else
+                        {
+                            // No se encontró ningún registro con ese ID
+                            Console.WriteLine("No se actualizó ningún registro.");
+                            return 0;
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Trace.WriteLine("Error al actualizar trabajador: " + ex.Message);
+                    throw new Exception("Error al actualizar trabajador: " + ex.Message);
+                }
+            }
+        }
+
+        private static int ActualizarRestauranteIDTrabajadorPorId(Trabajador t)
+        {
+            using (var connection = new MySqlConnection(BDDController.ConnectionString))
+            {
+                try
+                {
+                    connection.Open();
+                    string query = "UPDATE Trabajadores SET Restaurante_ID = @restaurante_id WHERE ID = @id";
+
+                    using (var cmd = new MySqlCommand(query, connection))
+                    {
+                        // Asignación de valores a los parámetros
                         cmd.Parameters.AddWithValue("@restaurante_id", t.Restaurante_Id);
                         cmd.Parameters.AddWithValue("@id", t.Id);
 
