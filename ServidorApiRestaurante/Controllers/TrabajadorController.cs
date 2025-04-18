@@ -218,6 +218,110 @@ namespace ServidorApiRestaurante.Controllers
                 
         }
 
+
+        [Authorize]
+        [ValidarTokenFilterController]
+        [SoloAdminsFilterController]
+        [HttpGet]
+        [Route("getTrabajadoresDeRestaurante/{id_Restaurante}")]
+        public dynamic ObtenerTrabajadoresxidRest(string id_Restaurante)
+        {
+            Trace.WriteLine("Pasa por obtener trabajadores de un restaurante");
+
+            List<Trabajador> trabajadores = ObtenerTrabajadoresDeRestaurante(id_Restaurante);
+
+            return trabajadores;
+        }
+
+        [Authorize]
+        [ValidarTokenFilterController]
+        [SoloAdminsFilterController]
+        [HttpGet]
+        [Route("getTrabajadoresSinRestaurante")]
+        public dynamic ObtenerTrabajadoresSinRest()
+        {
+            Trace.WriteLine("Pasa por obtener trabajadores sin un restaurante");
+
+            List<Trabajador> trabajadores = ObtenerTrabajadoresSinRestaurante();
+
+            return trabajadores;
+        }
+
+        private static List<Trabajador> ObtenerTrabajadoresSinRestaurante()
+        {
+            using (var connection = new MySqlConnection(BDDController.ConnectionString))
+            {
+                try
+                {
+                    connection.Open();
+                    string query = "SELECT * FROM Trabajadores WHERE Rol_ID = @rol_ID AND Restaurante_ID IS NULL";
+
+                    using (var cmd = new MySqlCommand(query, connection))
+                    {
+                        cmd.Parameters.AddWithValue("@rol_ID", 1);
+
+                        using (var reader = cmd.ExecuteReader())
+                        {
+                            List<Trabajador> trabajadores = new List<Trabajador>();
+
+                            while (reader.Read())
+                            {
+                                int ID = reader.GetInt32("ID");
+                                string nombre = reader.GetString("Nombre");
+                                int rol_ID = reader.GetInt32("Rol_ID");
+
+                                trabajadores.Add(new Trabajador(ID, nombre, "", rol_ID, 0));
+                            }
+
+                            return trabajadores;
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Trace.WriteLine("Error al obtener trabajadores: " + ex.Message);
+                    throw new Exception("Error al obtener trabajadores: " + ex.Message);
+                }
+            }
+        }
+
+        private static List<Trabajador> ObtenerTrabajadoresDeRestaurante(string id_Restaurante)
+        {
+            using (var connection = new MySqlConnection(BDDController.ConnectionString))
+            {
+                try
+                {
+                    connection.Open();
+                    string query = "SELECT * FROM Trabajadores WHERE Restaurante_ID = @restauranteId";
+
+                    using (var cmd = new MySqlCommand(query, connection))
+                    {
+                        cmd.Parameters.AddWithValue("@restauranteId", id_Restaurante);
+                        using (var reader = cmd.ExecuteReader())
+                        {
+                            List<Trabajador> trabajadores = new List<Trabajador>();
+
+                            while (reader.Read())
+                            {
+                                int ID = reader.GetInt32("ID");
+                                string nombre = reader.GetString("Nombre");
+                                int rol_ID = reader.GetInt32("Rol_ID");
+
+                                trabajadores.Add(new Trabajador(ID, nombre, "", rol_ID, 0 ));
+                            }
+
+                            return trabajadores;
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Trace.WriteLine("Error al obtener trabajadores: " + ex.Message);
+                    throw new Exception("Error al obtener trabajadores: " + ex.Message);
+                }
+            }
+        }
+
         private static int EliminarTrabajadorConID(string trabajador_id)
         {
             string query = "DELETE FROM Trabajadores WHERE ID = @id";
