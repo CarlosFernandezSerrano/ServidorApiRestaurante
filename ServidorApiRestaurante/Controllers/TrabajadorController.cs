@@ -192,6 +192,41 @@ namespace ServidorApiRestaurante.Controllers
         [Authorize]
         [ValidarTokenFilterController]
         [SoloAdminsFilterController]
+        [HttpPut]
+        [Route("actualizarTrabajadorPorGerente")]
+        public dynamic ActualizarTrabajadorPorGerenteXid(Trabajador trabajador)
+        {
+            Trace.WriteLine("Llega a actualizar trabajadores");
+
+            
+
+            // Si se quiere poner un nombre distinto a un trabajador, pero ya existe otro trabajador con ese nombre: result = 0
+            if (ExisteTrabajador(trabajador.Nombre))
+            {
+                Trabajador t = ObtenerTrabajadorPorNombre(trabajador.Nombre);
+                
+                if (!trabajador.Id.Equals(t.Id))
+                {
+                    return new { result = 0 };
+                }
+            }
+
+            int i = ActualizarTrabajadorPorId(trabajador);
+
+            // La actualización fue un éxito y se lo comunico al cliente
+            if (i.Equals(1))
+            {
+                return new { result = 1 };
+            }
+            else
+            {
+                return new { result = 0 };
+            }
+        }
+
+        [Authorize]
+        [ValidarTokenFilterController]
+        [SoloAdminsFilterController]
         [HttpDelete]
         [Route("eliminarxid/{id}")]
         public dynamic EliminarTrabajadorxid(string id)
@@ -201,21 +236,14 @@ namespace ServidorApiRestaurante.Controllers
 
             if (num.Equals(1))
             {
-                Trace.WriteLine("Cliente con id " + id + " eliminado.");
-                return new
-                {
-                    result = 1
-                };
+                Trace.WriteLine("Trabajador con id " + id + " eliminado.");
+                return new { result = 1 };
             }
             else
             {
-                Trace.WriteLine("Cliente con id " + id + " no eliminado.");
-                return new
-                {
-                    result = 0
-                };
+                Trace.WriteLine("Trabajador con id " + id + " no eliminado.");
+                return new { result = 0 };
             }
-                
         }
 
 
@@ -537,7 +565,7 @@ namespace ServidorApiRestaurante.Controllers
                 }
                 catch (Exception ex)
                 {
-                    Trace.WriteLine("Error al obtener trabajador: " + ex.Message);
+                    Trace.WriteLine("Error al obtener trabajador: "+ nombre + ex.Message);
                     throw new Exception("Error al obtener trabajador: " + ex.Message);
                 }
             }

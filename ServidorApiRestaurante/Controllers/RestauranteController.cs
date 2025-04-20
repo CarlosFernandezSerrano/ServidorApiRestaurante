@@ -162,6 +162,55 @@ namespace ServidorApiRestaurante.Controllers
             }
         }
 
+        [Authorize]
+        [ValidarTokenFilterController]
+        [SoloAdminsFilterController]
+        [HttpDelete]
+        [Route("eliminarxid/{id}")]
+        public dynamic EliminarRestaurantexid(string id)
+        {
+            Trace.WriteLine("Llega a eliminar restaurante x ID");
+            int num = EliminarRestauranteConID(id);
+
+            if (num.Equals(1))
+            {
+                Trace.WriteLine("Restaurante con id " + id + " eliminado.");
+                return new { result = 1 };
+            }
+            else
+            {
+                Trace.WriteLine("Restaurante con id " + id + " no eliminado.");
+                return new { result = 0 };
+            }
+
+        }
+
+        private static int EliminarRestauranteConID(string restaurante_id)
+        {
+            string query = "DELETE FROM Restaurantes WHERE ID = @id";
+
+            using (var connection = new MySqlConnection(BDDController.ConnectionString))
+            {
+                try
+                {
+                    connection.Open();
+                    using (var cmd = new MySqlCommand(query, connection))
+                    {
+                        cmd.Parameters.AddWithValue("@id", restaurante_id);
+
+                        int filasAfectadas = cmd.ExecuteNonQuery(); // Devuelve el número de filas eliminadas
+
+                        return filasAfectadas > 0 ? 1 : 0;
+                    }
+                }
+                catch (MySqlException ex)
+                {
+                    Trace.WriteLine("Error relacionado con MySQL: " + ex.Message);
+                    throw new Exception("Error al verificar la existencia del trabajador: " + ex.Message);
+                }
+            }
+        }
+
         private static bool ExisteRestauranteConID(int id)
         {
             string query = "SELECT COUNT(*) FROM Restaurantes WHERE ID = @id";
