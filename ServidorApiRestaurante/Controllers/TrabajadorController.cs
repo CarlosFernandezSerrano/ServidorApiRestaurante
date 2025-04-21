@@ -174,18 +174,13 @@ namespace ServidorApiRestaurante.Controllers
             int i = ActualizarTrabajadorPorId(t);
             
             // La actualización fue un éxito y se lo comunico al cliente
-            if (i.Equals(1)){
-                return new
-                {
-                    result = 1
-                };
+            if (i.Equals(1))
+            {
+                return new { result = 1 };
             }
             else
             {
-                return new
-                {
-                    result = 0
-                };
+                return new { result = 0 };
             }
         }
 
@@ -197,8 +192,6 @@ namespace ServidorApiRestaurante.Controllers
         public dynamic ActualizarTrabajadorPorGerenteXid(Trabajador trabajador)
         {
             Trace.WriteLine("Llega a actualizar trabajadores");
-
-            
 
             // Si se quiere poner un nombre distinto a un trabajador, pero ya existe otro trabajador con ese nombre: result = 0
             if (ExisteTrabajador(trabajador.Nombre))
