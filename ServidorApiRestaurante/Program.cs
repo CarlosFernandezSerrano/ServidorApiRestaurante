@@ -26,7 +26,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
     };
 });
 
-
+builder.WebHost.UseUrls("https://localhost:7233");
 var app = builder.Build();
 
 // Llamo al método de BDDController para crear la base de datos
