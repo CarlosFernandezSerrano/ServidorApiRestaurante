@@ -12,6 +12,7 @@ namespace ServidorApiRestaurante.Controllers
     [Route("reserva")] // Ruta: dirección/reserva/   https://localhost:7233/
     public class ReservaController : ControllerBase
     {
+        private static bool creandoReserva = false;
 
         [Authorize]
         [ValidarTokenFilterController]
@@ -36,45 +37,15 @@ namespace ServidorApiRestaurante.Controllers
         public dynamic CrearReserva(Reserva reserva)
         {
             Trace.WriteLine("Pasa por método crearReserva");
-
-            // Si la reserva tiene datos del cliente, se intenta crear la reserva desde el canvas "Crear Reserva" en el cliente
-            if (reserva.Cliente.Dni.Trim().Length > 0)
+            Console.WriteLine("Pasa por método crearReserva");
+            if (!creandoReserva)
             {
-                string dniCodificadoABase64 = AESCipher.Encrypt(reserva.Cliente.Dni);
-
-                int num = ClienteController.InsertarRegistro(reserva.Cliente);
-
-                // El cliente se ha creado correctamente
-                if (num.Equals(1))
+                creandoReserva = true;
+                // Si la reserva tiene datos del cliente, se intenta crear la reserva desde el canvas "Crear Reserva" en el cliente
+                if (reserva.Cliente.Dni.Trim().Length > 0)
                 {
-                    // Obtengo todos los datos del cliente creado
-                    Cliente clienteEnBDD = ClienteController.ObtenerClientePorDni(dniCodificadoABase64);
+                    string dniCodificadoABase64 = AESCipher.Encrypt(reserva.Cliente.Dni);
 
-                    // Creo la reserva con los datos del cliente
-                    reserva.Cliente_Id = clienteEnBDD.Id; // Coloco el ID del cliente existente en la nueva reserva que creo
-                    int num3 = InsertarRegistro(reserva);
-                    return new { result = num3 };
-                }
-                /*bool existeDniCliente = ClienteController.ExisteDniCliente(dniCodificadoABase64);
-
-                // Existe el cliente en la BDD
-                if (existeDniCliente)
-                {
-                    Cliente clienteEnBDD = ClienteController.ObtenerClientePorDni(dniCodificadoABase64);
-                    int resultadoActualización = ClienteController.ActualizarDatosDelCliente(reserva.Cliente, dniCodificadoABase64);
-                    // Si la actualización no ha sido un éxito, se envía la respuesta al cliente
-                    if (!resultadoActualización.Equals(1))
-                    {
-                        return new { result = resultadoActualización };
-                    }
-
-                    // El cliente se ha actualizado y ahora creo la reserva con sus datos
-                    reserva.Cliente_Id = clienteEnBDD.Id; // Coloco el ID del cliente existente en la nueva reserva que creo
-                    int num = InsertarRegistro(reserva);
-                    return new { result = num };
-                }
-                else // No existe el cliente en la BDD, así que lo creo
-                {
                     int num = ClienteController.InsertarRegistro(reserva.Cliente);
 
                     // El cliente se ha creado correctamente
@@ -88,14 +59,49 @@ namespace ServidorApiRestaurante.Controllers
                         int num3 = InsertarRegistro(reserva);
                         return new { result = num3 };
                     }
-                }*/
-                return new { result = 0 };
+                    /*bool existeDniCliente = ClienteController.ExisteDniCliente(dniCodificadoABase64);
+
+                    // Existe el cliente en la BDD
+                    if (existeDniCliente)
+                    {
+                        Cliente clienteEnBDD = ClienteController.ObtenerClientePorDni(dniCodificadoABase64);
+                        int resultadoActualización = ClienteController.ActualizarDatosDelCliente(reserva.Cliente, dniCodificadoABase64);
+                        // Si la actualización no ha sido un éxito, se envía la respuesta al cliente
+                        if (!resultadoActualización.Equals(1))
+                        {
+                            return new { result = resultadoActualización };
+                        }
+
+                        // El cliente se ha actualizado y ahora creo la reserva con sus datos
+                        reserva.Cliente_Id = clienteEnBDD.Id; // Coloco el ID del cliente existente en la nueva reserva que creo
+                        int num = InsertarRegistro(reserva);
+                        return new { result = num };
+                    }
+                    else // No existe el cliente en la BDD, así que lo creo
+                    {
+                        int num = ClienteController.InsertarRegistro(reserva.Cliente);
+
+                        // El cliente se ha creado correctamente
+                        if (num.Equals(1))
+                        {
+                            // Obtengo todos los datos del cliente creado
+                            Cliente clienteEnBDD = ClienteController.ObtenerClientePorDni(dniCodificadoABase64);
+
+                            // Creo la reserva con los datos del cliente
+                            reserva.Cliente_Id = clienteEnBDD.Id; // Coloco el ID del cliente existente en la nueva reserva que creo
+                            int num3 = InsertarRegistro(reserva);
+                            return new { result = num3 };
+                        }
+                    }*/
+                    return new { result = 0 };
+                }
+                else // No hay datos para el cliente por lo que la reserva se crea para el momento
+                {
+                    int num = InsertarRegistro(reserva);
+                    return new { result = num };
+                }
             }
-            else // No hay datos para el cliente por lo que la reserva se crea para el momento
-            {
-                int num = InsertarRegistro(reserva);
-                return new { result = num };
-            }                
+            return new { result = 0 };
         }
 
         [Authorize]
@@ -118,7 +124,21 @@ namespace ServidorApiRestaurante.Controllers
             }
         }
 
-        
+        [Authorize]
+        [ValidarTokenFilterController]
+        [HttpPut]
+        [Route("actualizarBoolCreandoReserva")]
+        public dynamic ActualizarBoolCreandoReserva(Resultado resultado)
+        {
+            if (resultado.Result.Equals(1))
+            {
+                creandoReserva = false;
+                return 1;
+            }
+            return 0;
+            
+        }
+
         private static bool ExisteReservaConfirmadaEnMesa(int id_Mesa)
         {
             string query = "SELECT COUNT(*) FROM Reservas WHERE Mesa_ID = @id AND Estado = @estado";
