@@ -7,7 +7,7 @@ namespace ServidorApiRestaurante.Controllers
 {
     public class BDDController
     {
-
+        //public static readonly string ConnectionString = "server=localhost;port=3306;user id=root;password=;database=restdb";
         public static readonly string ConnectionString = "server=ballast.proxy.rlwy.net;port=27564;user id=root;password=hiAkqzCZQpwFiFUTSdpAsyroJvlZdLzd;database=railway;";  //"server=localhost;port=3306;user id=root;password=;database=restdb";
 
 
