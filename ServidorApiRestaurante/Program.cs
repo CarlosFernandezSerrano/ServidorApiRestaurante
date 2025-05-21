@@ -27,6 +27,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
 });
 
 //builder.WebHost.UseUrls("http://localhost:7233");
+var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+builder.WebHost.UseUrls($"http://*:{port}");
 var app = builder.Build();
 
 // Llamo al método de BDDController para crear la base de datos
