@@ -51,7 +51,7 @@ app.UseForwardedHeaders(new ForwardedHeadersOptions // Nuevo
     ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
 });
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 
 app.UseAuthentication(); //Nuevo
 app.UseAuthorization();
