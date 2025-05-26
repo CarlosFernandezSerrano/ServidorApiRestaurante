@@ -69,7 +69,7 @@ namespace ServidorApiRestaurante.Controllers
             string consultaDeTablaRestaurantes = @"
             CREATE TABLE IF NOT EXISTS Restaurantes (
             ID INTEGER AUTO_INCREMENT PRIMARY KEY,  
-            Nombre VARCHAR(40) UNIQUE NOT NULL,            
+            Nombre VARCHAR(40) NOT NULL,            
             Hora_Apertura VARCHAR(10) NOT NULL, 
             Hora_Cierre VARCHAR(10) NOT NULL,
             TiempoParaComer VARCHAR(10) NOT NULL
