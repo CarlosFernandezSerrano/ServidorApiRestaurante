@@ -22,17 +22,17 @@ namespace ServidorApiRestaurante.Controllers
             Trace.WriteLine("restaurante.Nombre: " + restaurante.Nombre);
             Trace.WriteLine("restaurante.HoraApertura " + restaurante.HoraApertura);
             Trace.WriteLine("restaurante.HoraCierre " + restaurante.HoraCierre);
-
-            // Compruebo si existe el trabajador antes de intentar insertarlo, para que no se creen IDs vacíos.
+            /*
+            // Compruebo si existe el restaurante antes de intentar insertarlo, para que no se creen IDs vacíos.
             if (ExisteRestauranteConNombre(restaurante.Nombre))
             {
                 return new { result = 2 };
             }
             else
-            {
+            {*/
                 int num = InsertarRegistro(BDDController.ConnectionString, restaurante.Nombre, restaurante.HoraApertura, restaurante.HoraCierre, restaurante.TiempoParaComer);
                 return new { result = num };
-            }
+            //}
         }
 
         [Authorize]
@@ -329,8 +329,12 @@ namespace ServidorApiRestaurante.Controllers
 
                         // Ejecutamos la consulta. ExecuteNonQuery devuelve el número de filas afectadas
                         int filasAfectadas = cmd.ExecuteNonQuery();
+
+                        // Recuperar el ID generado automáticamente
+                        int idGenerado = (int)cmd.LastInsertedId;
+
                         Trace.WriteLine("Restaurante insertado correctamente. Filas afectadas: " + filasAfectadas);
-                        return 1;
+                        return idGenerado;
                     }
                 }
                 catch (MySqlException ex)
