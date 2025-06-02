@@ -1,0 +1,160 @@
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using MySql.Data.MySqlClient;
+using Mysqlx.Datatypes;
+using ServidorApiRestaurante.Models;
+using System.Data;
+using System.Diagnostics;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+
+namespace ServidorApiRestaurante.Controllers
+{
+    [ApiController]
+    [Route("articulo")]
+    public class ArticuloController: ControllerBase
+    {
+        [Authorize]
+        [ValidarTokenFilterController]
+        [HttpPost]
+        [Route("crearArticulo")]
+        public dynamic CrearArticulo(Articulo articulo)
+        {
+            Trace.WriteLine("articulo.id: " + articulo.id);
+            Trace.WriteLine("articulo.nombre: " + articulo.nombre);
+            Trace.WriteLine("articulo.precio " + articulo.precio);
+            Trace.WriteLine("articulo.categoria " + articulo.categoria);
+
+            // Compruebo si existe el trabajador antes de intentar insertarlo, para que no se creen IDs vacíos.
+            if (ExisteArticuloID(articulo.id))
+            {
+                return new { result = 2 };
+            }
+            else
+            {
+                int num = InsertarRegistro(BDDController.ConnectionString, articulo.id,articulo.nombre,articulo.precio,articulo.categoria);
+                return new { result = num };
+            }
+        }
+        [Authorize]
+        [ValidarTokenFilterController]
+        [HttpGet]
+        [Route("getArticulo/{id}")]
+        public dynamic ObtenerArticuloPorID(int id)
+        {
+            Articulo art=getArticuloByID(id);
+            return art;
+        }
+        private static bool ExisteArticuloID(int id)
+        {
+            string query = "SELECT count(*) FROM articulos WHERE ID=@id";
+            using (var connection = new MySqlConnection(BDDController.ConnectionString))
+            {
+                try
+                {
+                    connection.Open();
+                    using (var cmd = new MySqlCommand(query, connection))
+                    {
+                        cmd.Parameters.AddWithValue("@id", id);
+
+                        int count = Convert.ToInt32(cmd.ExecuteScalar()); // Obtiene el número de coincidencias
+                        return count > 0; // Si es mayor a 0, el articulo existe
+                    }
+                }
+                catch (MySqlException ex)
+                {
+                    Trace.WriteLine("Error relacionado con MySQL: " + ex.Message);
+                    throw new Exception("Error al verificar la existencia del articulo: " + ex.Message);
+                }
+            }
+        }
+
+        private static Articulo getArticuloByID(int id)
+        {
+            using (var connection = new MySqlConnection(BDDController.ConnectionString))
+            {
+                try
+                {
+                    connection.Open();
+                    string query = "SELECT * FROM Articulos WHERE id = @id";
+
+                    using (var cmd = new MySqlCommand(query, connection))
+                    {
+                        cmd.Parameters.AddWithValue("@id", id);
+                        using (var reader = cmd.ExecuteReader())
+                        {
+                            if (reader.Read())
+                            {
+                                int Id = reader.GetInt32("ID");
+                                string Nombre = reader.GetString("Nombre");
+                                float Precio= reader.GetFloat("Precio");
+                                string Categoria = reader.GetString("Categoria");
+                                Articulo art = new Articulo(Id, Nombre, Precio, Categoria);
+
+                                return art;
+                            }
+                            else
+                            {
+                                throw new Exception("Error al obtener articulo");
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Trace.WriteLine("Error al obtener articulo: " + ex.Message);
+                    throw new Exception("Error al obtener articulo: " + ex.Message);
+                }
+            }
+        }
+
+        private static int InsertarRegistro(string connectionString, int id, string nombre, float precio, string categoria)
+        {
+            // Consulta SQL parametrizada para insertar datos en la tabla 'Articulos'
+            string insertQuery = "INSERT INTO Articulos (id, nombre, precio, categoria) VALUES (@id, @nombre, @precio, @categoria)";
+
+            // Usamos 'using' para asegurar que la conexión se cierre correctamente
+            using (var connection = new MySqlConnection(connectionString))
+            {
+                try
+                {
+                    // Abrimos la conexión con la base de datos
+                    connection.Open();
+
+                    // Creamos el comando para ejecutar la consulta SQL
+                    using (var cmd = new MySqlCommand(insertQuery, connection))
+                    {
+                        // Asignamos los parámetros con sus respectivos valores
+                        cmd.Parameters.AddWithValue("@id", id);
+                        cmd.Parameters.AddWithValue("@nombre", nombre);
+                        cmd.Parameters.AddWithValue("@precio", precio);
+                        cmd.Parameters.AddWithValue("@categoria", categoria);
+
+                        // Ejecutamos la consulta. ExecuteNonQuery devuelve el número de filas afectadas
+                        int filasAfectadas = cmd.ExecuteNonQuery();
+                        Trace.WriteLine("Articulo insertado correctamente. Filas afectadas: " + filasAfectadas);
+                        return 1;
+                    }
+                }
+                catch (MySqlException ex)
+                {
+                    // Capturamos errores relacionados con MySQL
+                    Trace.WriteLine("Error relacionado con MySQL: " + ex.Message);
+                    return 2;
+
+                }
+                catch (InvalidOperationException ex)
+                {
+                    // Capturamos errores de operación inválida en la conexión
+                    Trace.WriteLine("Error de operación inválida: " + ex.Message);
+                    return -3;
+                }
+                catch (Exception ex)
+                {
+                    // Capturamos cualquier otro error inesperado
+                    Trace.WriteLine("Error inesperado: " + ex.Message);
+                    return 0;
+                }
+            }
+        }
+    }
+}
