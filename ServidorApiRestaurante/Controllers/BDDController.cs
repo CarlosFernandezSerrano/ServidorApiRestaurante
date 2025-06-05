@@ -128,6 +128,53 @@ namespace ServidorApiRestaurante.Controllers
             );"; 
             CrearTabla(ConnectionString, consultaDeTablaReservas, "Reservas");
 
+            string consultaArticulos = @"CREATE TABLE IF NOT EXISTS articulos (
+              id int(11) NOT NULL,
+              precio float DEFAULT NULL,
+              nombre varchar(64) DEFAULT NULL,
+              categoria varchar(32) DEFAULT NULL,
+              PRIMARY KEY (id)
+            );INSERT IGNORE INTO articulos VALUES (1,5,'coca cola','bebidas'),(2,50,'Filete wagyu','Platos'),(3,10,'Fondue','postres'),(4,7,'Bravas','Entrantes'),(6,6,'string','string'),(15,0,'string','string'),(99,23,'Bistec','Platos');
+            ";
+            CrearTabla(ConnectionString, consultaArticulos, "Articulos");
+
+            string consultaFacturas = @"CREATE TABLE IF NOT EXISTS facturas (
+              id int(11) NOT NULL,
+              total float DEFAULT NULL,
+              activa int(11) DEFAULT NULL,
+              mesa int(11) DEFAULT NULL,
+              PRIMARY KEY (id)
+            );
+            ";
+            CrearTabla(ConnectionString,consultaFacturas, "Facturas");
+            string consultaPedidos = @"CREATE TABLE IF NOT EXISTS pedidos (
+              factura int(11) DEFAULT NULL,
+              id int(11) NOT NULL,
+              fecha varchar(10) DEFAULT NULL,
+              estado varchar(12) DEFAULT NULL,
+              mesa int(11) DEFAULT NULL,
+              PRIMARY KEY (id),
+              KEY mesa (mesa),
+              KEY factura (factura),
+              CONSTRAINT pedidos_ibfk_3 FOREIGN KEY (mesa) REFERENCES mesas (ID) ON DELETE CASCADE,
+              CONSTRAINT pedidos_ibfk_4 FOREIGN KEY (factura) REFERENCES facturas (id) ON DELETE CASCADE
+            );
+            ";
+            CrearTabla(ConnectionString, consultaPedidos, "Pedidos");
+
+            string consultaInstancias = @"CREATE TABLE IF NOT EXISTS instanciaarticulos (
+              idArticulo int(11) NOT NULL,
+              idPedido int(11) NOT NULL,
+              cantidad int(11) DEFAULT NULL,
+              PRIMARY KEY (idArticulo,idPedido),
+              KEY idPedido (idPedido),
+              CONSTRAINT instanciaarticulos_ibfk_3 FOREIGN KEY (idArticulo) REFERENCES articulos (id) ON DELETE CASCADE,
+              CONSTRAINT instanciaarticulos_ibfk_4 FOREIGN KEY (idPedido) REFERENCES pedidos (id) ON DELETE CASCADE
+            );
+
+            ";
+            CrearTabla(ConnectionString, consultaInstancias, "InstanciaArticulos");
+
         }
 
         private static void CrearTabla(string connectionString, string createTableQuery, string nombreTabla)
