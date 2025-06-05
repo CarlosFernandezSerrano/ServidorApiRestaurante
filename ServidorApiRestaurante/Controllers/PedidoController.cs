@@ -15,8 +15,8 @@ namespace ServidorApiRestaurante.Controllers
     [Route("pedido")]
     public class PedidoController : ControllerBase
     {
-        [Authorize]
-        [ValidarTokenFilterController]
+        /*[Authorize]
+        [ValidarTokenFilterController]*/
         [HttpPost]
         [Route("crearPedido")]
         public dynamic CrearPedido(Pedido pedido)
@@ -29,19 +29,27 @@ namespace ServidorApiRestaurante.Controllers
             }
             else
             {
-                int num = InsertarRegistro(BDDController.ConnectionString, pedido.id, pedido.fecha, pedido.mesa, pedido.factura.id);
+                int num = InsertarRegistro(BDDController.ConnectionString, pedido.id, pedido.fecha, pedido.mesa,pedido.estado, pedido.factura);
                 return new { result = num };
             }
         }
 
-        [Authorize]
-        [ValidarTokenFilterController]
+        /*[Authorize]
+        [ValidarTokenFilterController]*/
         [HttpGet]
         [Route("getPedido/{id}")]
         public dynamic ObtenerPedidoPorID(int id)
         {
             Pedido p = getPedidoByID(id);
             return p;
+        }
+        /*[Authorize]
+        [ValidarTokenFilterController]*/
+        [HttpGet]
+        [Route("existePedido/{id}")]
+        public bool ExistePedido(int id)
+        {
+            return ExistePedido(id);
         }
         private static bool ExistePedidoID(int id)
         {
@@ -66,7 +74,205 @@ namespace ServidorApiRestaurante.Controllers
                 }
             }
         }
+        /*[Authorize]
+        [ValidarTokenFilterController]*/
+        [HttpGet]
+        [Route("getArticulos/{id}")]
+        public dynamic getArticulos(int id){
+            return getListaArticulos(id);
+        }
+        
+        /*[Authorize]
+        [ValidarTokenFilterController]*/
+        [HttpGet]
+        [Route("getTotal/{id}")]
+        public dynamic getTotal(int id){
+            List<InstanciaArticulo> articulos=getListaArticulos(id);
+            float total=0;
+            foreach (InstanciaArticulo a in articulos){
+                total += new ArticuloController().ObtenerArticuloPorID(a.idArticulo).precio;
+            }
+            return total;
+        }
+        /*[Authorize]
+        [ValidarTokenFilterController]*/
+        [HttpGet]
+        [Route("getNumPedidos")]
+        public dynamic ObtenerNumPedidos()
+        {
+            int num= GetNumPedidos();
+            return num;
+        }
+        /*[Authorize]
+        [ValidarTokenFilterController]*/
+        [HttpGet]
+        [Route("getTodosPedidos")]
+        public dynamic ObtenerTodosPedidos()
+        {
+            List<Pedido> lista = GetAllPedidos();
+            return lista;
+        }
+        /*[Authorize]
+        [ValidarTokenFilterController]*/
+        [HttpPut]
+        [Route("cambiarEstado/{id}")]
+        public dynamic CambiarEstado(int id,string estado)
+        {
+            Trace.WriteLine("Llega a cambiar estado");
 
+            int num = updateEstado(id, estado);
+
+            if (num.Equals(1))
+            {
+                return new { result = 1 };
+            }
+            else
+            {
+                return new { result = 0 };
+            }
+        }
+        /*[Authorize]
+        [ValidarTokenFilterController]*/
+        [HttpDelete]
+        [Route("borrar/{id}")]
+        public dynamic borrarPedido(int id)
+        {
+            Trace.WriteLine("Llega a borrar mesa x ID");
+            int num = deletePedido(id);
+
+            if (num.Equals(1))
+            {
+                return new { result = 1 };
+            }
+            else
+            {
+                return new { result = 0 };
+            }
+
+        }
+        public static int deletePedido(int id)
+        {
+            string query = "DELETE FROM Pedidos WHERE ID = @id";
+
+            using (var connection = new MySqlConnection(BDDController.ConnectionString))
+            {
+                try
+                {
+                    connection.Open();
+                    using (var cmd = new MySqlCommand(query, connection))
+                    {
+                        cmd.Parameters.AddWithValue("@id", id);
+
+                        int filasAfectadas = cmd.ExecuteNonQuery(); // Devuelve el número de filas eliminadas
+
+                        return filasAfectadas > 0 ? 1 : 0;
+                    }
+                }
+                catch (MySqlException ex)
+                {
+                    Trace.WriteLine("Error relacionado con MySQL: " + ex.Message);
+                    throw new Exception("Error al verificar la existencia del trabajador: " + ex.Message);
+                }
+            }
+        }
+        public static int updateEstado(int id, string estado)
+        {
+            using (var connection = new MySqlConnection(BDDController.ConnectionString))
+            {
+                try
+                {
+                    connection.Open();
+                    string query = "UPDATE pedidos SET estado = @estado WHERE ID = @id";
+
+                    using (var cmd = new MySqlCommand(query, connection))
+                    {
+                        // Asignación de valores a los parámetros
+                        cmd.Parameters.AddWithValue("@id", id);
+                        cmd.Parameters.AddWithValue("@estado", estado);
+
+                        // Ejecuta la sentencia y retorna el número de filas afectadas
+                        int rowsAffected = cmd.ExecuteNonQuery();
+
+                        if (rowsAffected > 0)
+                        {
+                            // La actualización fue exitosa
+                            Trace.WriteLine("Registro actualizado correctamente.");
+                            return 1;
+                        }
+                        else
+                        {
+                            // No se encontró ningún registro con ese ID
+                            Trace.WriteLine("No se actualizó ningún registro.");
+                            return 0;
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Trace.WriteLine("Error al actualizar trabajador: " + ex.Message);
+                    throw new Exception("Error al actualizar trabajador: " + ex.Message);
+                }
+            }
+        }
+        private static List<Pedido> GetAllPedidos()
+        {
+            List<Pedido> lista=new List<Pedido>();
+            using (var connection = new MySqlConnection(BDDController.ConnectionString))
+            {
+                try
+                {
+                    connection.Open();
+                    string query = "SELECT * FROM Pedidos";
+
+                    using (var cmd = new MySqlCommand(query, connection))
+                    {
+                        using (var reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                int id = reader.GetInt32("id");
+                                string fecha = reader.GetString("fecha");
+                                string estado = reader.GetString("estado");
+                                int mesa = reader.GetInt32("mesa");
+                                int factura = reader.GetInt32("factura");
+
+                                lista.Add(new Pedido(id,fecha,mesa,estado,factura));
+                            }
+
+                            return lista;
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Trace.WriteLine("Error al obtener mesas: " + ex.Message);
+                    throw new Exception("Error al obtener mesas: " + ex.Message);
+                }
+            }
+
+        }
+        private static int GetNumPedidos()
+        {
+            string query = "SELECT count(*) FROM pedidos;";
+            using (var connection = new MySqlConnection(BDDController.ConnectionString))
+            {
+                try
+                {
+                    connection.Open();
+                    using (var cmd = new MySqlCommand(query, connection))
+                    {
+
+                        int count = Convert.ToInt32(cmd.ExecuteScalar()); // Obtiene el número de coincidencias
+                        return count; // Si es mayor a 0, factura existe
+                    }
+                }
+                catch (MySqlException ex)
+                {
+                    Trace.WriteLine("Error relacionado con MySQL: " + ex.Message);
+                    throw new Exception("Error al verificar la existencia de la factura: " + ex.Message);
+                }
+            }
+        }
         public static Pedido getPedidoByID(int id)
         {
             using (var connection = new MySqlConnection(BDDController.ConnectionString))
@@ -87,8 +293,8 @@ namespace ServidorApiRestaurante.Controllers
                                 string Fecha = reader.GetString("Fecha");
                                 int Mesa = reader.GetInt32("Mesa");
                                 string Estado = reader.GetString("Estado");
-                                Factura f = FacturaController.ObtenerFacturaPorID(reader.GetInt32("Factura"));
-                                Pedido p = new Pedido(Id, Fecha,Mesa, Estado,getListaArticulos(Id),f);
+                                int f = reader.GetInt32("Factura");
+                                Pedido p = new Pedido(Id, Fecha,Mesa, Estado,f);
                                 return p;
                             }
                             else
@@ -106,7 +312,7 @@ namespace ServidorApiRestaurante.Controllers
             }
         }
 
-        private static int InsertarRegistro(string connectionString, int id, string fecha, int mesa, int factura)
+        private static int InsertarRegistro(string connectionString, int id, string fecha, int mesa,string estado, int factura)
         {
             // Consulta SQL parametrizada para insertar datos en la tabla 'Articulos'
             string insertQuery = "INSERT INTO Pedidos (id, fecha, mesa, estado, factura) VALUES (@id, @fecha, @mesa, @estado, @factura)";
@@ -126,7 +332,7 @@ namespace ServidorApiRestaurante.Controllers
                         cmd.Parameters.AddWithValue("@id", id);
                         cmd.Parameters.AddWithValue("@fecha", fecha);
                         cmd.Parameters.AddWithValue("@mesa", mesa);
-                        cmd.Parameters.AddWithValue("@estado", "Apuntado");
+                        cmd.Parameters.AddWithValue("@estado", estado);
                         cmd.Parameters.AddWithValue("@factura", factura);
 
                         // Ejecutamos la consulta. ExecuteNonQuery devuelve el número de filas afectadas
@@ -157,6 +363,7 @@ namespace ServidorApiRestaurante.Controllers
             }
             
         }//OBTENER LISTA DE INSTANCIAARTÍCULOS EN EL PEDIDO
+        
         public static List<InstanciaArticulo> getListaArticulos(int idPedido)
         {
             List<InstanciaArticulo> lista=new List<InstanciaArticulo>();
@@ -177,9 +384,8 @@ namespace ServidorApiRestaurante.Controllers
                                 int idArt = reader.GetInt32("idArticulo");
                                 int IdPed = reader.GetInt32("idPedido");
                                 int Cantidad = reader.GetInt32("Cantidad");
-                                float Precio = reader.GetFloat("Precio");
 
-                                lista.Add(new InstanciaArticulo(idArt, IdPed, Cantidad, Precio));
+                                lista.Add(new InstanciaArticulo(idArt, IdPed, Cantidad));
                             }
 
                             return lista;

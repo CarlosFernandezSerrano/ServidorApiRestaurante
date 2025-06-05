@@ -13,8 +13,8 @@ namespace ServidorApiRestaurante.Controllers
     [Route("articulo")]
     public class ArticuloController: ControllerBase
     {
-        [Authorize]
-        [ValidarTokenFilterController]
+        /*[Authorize]
+        [ValidarTokenFilterController]*/
         [HttpPost]
         [Route("crearArticulo")]
         public dynamic CrearArticulo(Articulo articulo)
@@ -24,7 +24,7 @@ namespace ServidorApiRestaurante.Controllers
             Trace.WriteLine("articulo.precio " + articulo.precio);
             Trace.WriteLine("articulo.categoria " + articulo.categoria);
 
-            // Compruebo si existe el trabajador antes de intentar insertarlo, para que no se creen IDs vacíos.
+            // Compruebo si existe el trabajador antes de intentar insertarlo, para que no se creen IDs vacï¿½os.
             if (ExisteArticuloID(articulo.id))
             {
                 return new { result = 2 };
@@ -35,14 +35,94 @@ namespace ServidorApiRestaurante.Controllers
                 return new { result = num };
             }
         }
-        [Authorize]
-        [ValidarTokenFilterController]
+        /*[Authorize]
+        [ValidarTokenFilterController]*/
         [HttpGet]
         [Route("getArticulo/{id}")]
         public dynamic ObtenerArticuloPorID(int id)
         {
             Articulo art=getArticuloByID(id);
             return art;
+        }
+        /*[Authorize]
+        [ValidarTokenFilterController]*/
+        [HttpGet]
+        [Route("getNumArticulos")]
+        public dynamic ObtenerNumArticulos()
+        {
+            int num= GetNumArticulos();
+            return num;
+        }
+
+        /*[Authorize]
+        [ValidarTokenFilterController]*/
+        [HttpGet]
+        [Route("getArticulosCat/{cat}")]
+        public dynamic ObtenerArticulosCat(string cat)
+        {
+            List<Articulo> lista = GetArticulosCat(cat);
+            return lista;
+        }
+
+        private List<Articulo> GetArticulosCat(string cat)
+        {
+            List<Articulo> lista = new List<Articulo>();
+            using (var connection = new MySqlConnection(BDDController.ConnectionString))
+            {
+                try
+                {
+                    connection.Open();
+                    string query = "SELECT * FROM Articulos WHERE categoria = @categoria";
+
+                    using (var cmd = new MySqlCommand(query, connection))
+                    {
+                        cmd.Parameters.AddWithValue("@categoria", cat);
+                        using (var reader = cmd.ExecuteReader())
+                        {
+                            Trace.WriteLine("Entrado a getartcat");
+                            while (reader.Read())
+                            {
+                                Trace.WriteLine("Entrado a loop");
+                                int id = reader.GetInt32("id");
+                                float precio = reader.GetFloat("precio");
+                                string nombre = reader.GetString("nombre");
+                                string categoria = reader.GetString("categoria");
+
+                                lista.Add(new Articulo(id,nombre,precio,categoria));
+                            }
+
+                            return lista;
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Trace.WriteLine("Error al obtener mesas: " + ex.Message);
+                    throw new Exception("Error al obtener mesas: " + ex.Message);
+                }
+            }
+        }
+
+        private static int GetNumArticulos()
+        {
+            string query = "SELECT count(*) FROM articulos;";
+            using (var connection = new MySqlConnection(BDDController.ConnectionString))
+            {
+                try
+                {
+                    connection.Open();
+                    using (var cmd = new MySqlCommand(query, connection))
+                    {
+                        int count = Convert.ToInt32(cmd.ExecuteScalar()); // Obtiene el nÃºmero de coincidencias
+                        return count; // Si es mayor a 0, factura existe
+                    }
+                }
+                catch (MySqlException ex)
+                {
+                    Trace.WriteLine("Error relacionado con MySQL: " + ex.Message);
+                    throw new Exception("Error al verificar la existencia de la factura: " + ex.Message);
+                }
+            }
         }
         private static bool ExisteArticuloID(int id)
         {
@@ -56,7 +136,7 @@ namespace ServidorApiRestaurante.Controllers
                     {
                         cmd.Parameters.AddWithValue("@id", id);
 
-                        int count = Convert.ToInt32(cmd.ExecuteScalar()); // Obtiene el número de coincidencias
+                        int count = Convert.ToInt32(cmd.ExecuteScalar()); // Obtiene el nï¿½mero de coincidencias
                         return count > 0; // Si es mayor a 0, el articulo existe
                     }
                 }
@@ -106,30 +186,30 @@ namespace ServidorApiRestaurante.Controllers
                 }
             }
         }
-
+        
         private static int InsertarRegistro(string connectionString, int id, string nombre, float precio, string categoria)
         {
             // Consulta SQL parametrizada para insertar datos en la tabla 'Articulos'
             string insertQuery = "INSERT INTO Articulos (id, nombre, precio, categoria) VALUES (@id, @nombre, @precio, @categoria)";
 
-            // Usamos 'using' para asegurar que la conexión se cierre correctamente
+            // Usamos 'using' para asegurar que la conexiï¿½n se cierre correctamente
             using (var connection = new MySqlConnection(connectionString))
             {
                 try
                 {
-                    // Abrimos la conexión con la base de datos
+                    // Abrimos la conexiï¿½n con la base de datos
                     connection.Open();
 
                     // Creamos el comando para ejecutar la consulta SQL
                     using (var cmd = new MySqlCommand(insertQuery, connection))
                     {
-                        // Asignamos los parámetros con sus respectivos valores
+                        // Asignamos los parï¿½metros con sus respectivos valores
                         cmd.Parameters.AddWithValue("@id", id);
                         cmd.Parameters.AddWithValue("@nombre", nombre);
                         cmd.Parameters.AddWithValue("@precio", precio);
                         cmd.Parameters.AddWithValue("@categoria", categoria);
 
-                        // Ejecutamos la consulta. ExecuteNonQuery devuelve el número de filas afectadas
+                        // Ejecutamos la consulta. ExecuteNonQuery devuelve el nï¿½mero de filas afectadas
                         int filasAfectadas = cmd.ExecuteNonQuery();
                         Trace.WriteLine("Articulo insertado correctamente. Filas afectadas: " + filasAfectadas);
                         return 1;
@@ -144,8 +224,8 @@ namespace ServidorApiRestaurante.Controllers
                 }
                 catch (InvalidOperationException ex)
                 {
-                    // Capturamos errores de operación inválida en la conexión
-                    Trace.WriteLine("Error de operación inválida: " + ex.Message);
+                    // Capturamos errores de operaciï¿½n invï¿½lida en la conexiï¿½n
+                    Trace.WriteLine("Error de operaciï¿½n invï¿½lida: " + ex.Message);
                     return -3;
                 }
                 catch (Exception ex)

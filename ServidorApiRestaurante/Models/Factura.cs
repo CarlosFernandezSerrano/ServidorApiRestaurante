@@ -2,22 +2,28 @@ using System.Text.Json.Serialization;
 
 public class Factura
 {
-    public int id { get; private set; }
-    public float total {  get; private set; }
-    public List<Pedido> listaPedidos { get; private set; }
+    public int id { get; set; }
+    public float total {  get; set; }
+    public bool activa { get; set; }
+    public int mesa { get; set; }
+    //public List<Pedido> listaPedidos { get; private set; }
 
-    [JsonConstructor]
+    /*[JsonConstructor]
     public Factura(int id, float total, List<Pedido> listaPedidos)
     {
 		this.id = id;
 		this.total=total;
         this.listaPedidos = listaPedidos;
-    }
-    public Factura(int id)
+    }*/
+    [JsonConstructor]
+    public Factura(int id,float total,bool activa, int mesa)
     {
-        this.listaPedidos = new List<Pedido>();
-        this.total = 0;
+        this.id=id;
+        this.total = total;
+        this.activa = activa;
+        this.mesa = mesa;
     }
+    /* HACER EN SERVIDOR
     public string MostrarPedidos()
     {
         string str= "";
@@ -26,11 +32,13 @@ public class Factura
             str += p.Mostrar()+"\n";
         }
         return str;
-    }
+    }*/
     public string Mostrar()
     {
-        return "" + id + " " + total + MostrarPedidos();
+        return "" + id+" "+total+" "+activa;
     }
+    /*
+    HACER EN SERVIDOR
     public void calcularTotal()
     {
             this.total = 0;
@@ -41,5 +49,5 @@ public class Factura
     }
 	public void addPedido(Pedido p){
 		listaPedidos.Add(p);
-	}
+	}*/
 }

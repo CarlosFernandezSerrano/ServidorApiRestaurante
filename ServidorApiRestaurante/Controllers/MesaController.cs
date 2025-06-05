@@ -31,6 +31,16 @@ namespace ServidorApiRestaurante.Controllers
             }
 
         }
+        [Authorize]
+        [ValidarTokenFilterController]
+        [SoloAdminsFilterController]
+        [HttpGet]
+        [Route("ObtenerFacturas/{id}")]
+        public dynamic ObtenerFacturas(int m)
+        {
+            return getFacturas(m);
+
+        }
 
         [Authorize]
         [ValidarTokenFilterController]
@@ -219,6 +229,42 @@ namespace ServidorApiRestaurante.Controllers
             }
         }
 
-        
+        public static List<Factura> getFacturas(int id)
+        {
+            List<Factura> lista = new List<Factura>();
+            using (var connection = new MySqlConnection(BDDController.ConnectionString))
+            {
+                try
+                {
+                    connection.Open();
+                    string query = "SELECT * FROM Facturas WHERE mesa = @mesa";
+
+                    using (var cmd = new MySqlCommand(query, connection))
+                    {
+                        cmd.Parameters.AddWithValue("@id", id);
+                        using (var reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                int Id = reader.GetInt32("ID");
+                                float Total = reader.GetFloat("Total");
+                                bool activa = reader.GetInt32("Activa") == 1;
+                                int mes = reader.GetInt32("mesa");
+                                Factura f = new Factura(Id, Total, activa, mes);
+
+                                lista.Add(f);
+                            }
+
+                            return lista;
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Trace.WriteLine("Error al obtener mesas: " + ex.Message);
+                    throw new Exception("Error al obtener mesas: " + ex.Message);
+                }
+            }
+        }
     }
 }

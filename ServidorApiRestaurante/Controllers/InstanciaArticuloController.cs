@@ -6,19 +6,21 @@ using ServidorApiRestaurante.Models;
 using System.Data;
 using System.Diagnostics;
 using static System.Runtime.InteropServices.JavaScript.JSType;
-
+//HACER FUNCIÓN PARA AUMENTAR NUM CUANDO SE CREE Y TAL VEZ DISMINUIR NUM
+//IMPLEMENTAR UN BOTÓN PARA ELIMINAR UNA INSTANCIAARTICULO
 namespace ServidorApiRestaurante.Controllers
 {
     [ApiController]
     [Route("instanciaArticulo")]
     public class InstanciaArticuloController : ControllerBase
     {
-        [Authorize]
-        [ValidarTokenFilterController]
+        /*[Authorize]
+        [ValidarTokenFilterController]*/
         [HttpPost]
         [Route("crearInstancia")]
         public dynamic CrearInstancia(InstanciaArticulo instancia)
         {
+            Trace.WriteLine("Pingo");
             Trace.WriteLine("idArticulo:" + instancia.idArticulo);
             Trace.WriteLine("idPedido: " + instancia.idPedido);
 
@@ -30,13 +32,13 @@ namespace ServidorApiRestaurante.Controllers
             }
             else
             {
-                int num = InsertarRegistro(BDDController.ConnectionString, instancia.idArticulo, instancia.idPedido, instancia.cantidad, instancia.precio);
+                int num = InsertarRegistro(BDDController.ConnectionString, instancia.idArticulo, instancia.idPedido, instancia.cantidad);
                 return new { result = num };
             }
         }
 
-        [Authorize]
-        [ValidarTokenFilterController]
+        /*[Authorize]
+        [ValidarTokenFilterController]*/
         [HttpGet]
         [Route("getInstancia/{idA}/{idP}")]
         public dynamic ObtenerInstanciaPorID(int idA,int idP)
@@ -44,9 +46,102 @@ namespace ServidorApiRestaurante.Controllers
             InstanciaArticulo art = getInstanciaByID(idA,idP);
             return art;
         }
+        /*[Authorize]
+        [ValidarTokenFilterController]*/
+        [HttpPut]
+        [Route("aumentar")]
+        public dynamic AumentarArticulo(InstanciaArticulo art)
+        {
+            Trace.WriteLine("Llega a cambiar estado");
+
+            int num=AumentarArticuloID(art);
+
+            if (num.Equals(1))
+            {
+                return new { result = 1 };
+            }
+            else
+            {
+                return new { result = 0 };
+            }
+        }
+        private static int AumentarArticuloID(InstanciaArticulo art){
+            // Consulta SQL parametrizada para insertar datos en la tabla 'Articulos'
+            string insertQuery = "UPDATE InstanciaArticulos SET cantidad=@cantidad WHERE idArticulo=@idArticulo AND idPedido=@idPedido";
+            Trace.WriteLine("Entramos aumentar");
+            InstanciaArticulo insta = getInstanciaByID(art.idArticulo, art.idPedido);
+            if (insta != null)
+            {
+                int cantidadOriginal = insta.cantidad;
+                using (var connection = new MySqlConnection(BDDController.ConnectionString))
+                {
+                    try
+                    {
+                        // Abrimos la conexión con la base de datos
+                        connection.Open();
+                        Trace.WriteLine("Conseguimos conexion");
+                        // Creamos el comando para ejecutar la consulta SQL
+                        using (var cmd = new MySqlCommand(insertQuery, connection))
+                        {
+                            // Asignamos los parámetros con sus respectivos valores
+                            cmd.Parameters.AddWithValue("@idArticulo", art.idArticulo);
+                            cmd.Parameters.AddWithValue("@idPedido", art.idPedido);
+                            cmd.Parameters.AddWithValue("@cantidad", cantidadOriginal + art.cantidad);
+                            Trace.WriteLine("Addeamos parametros");
+                            // Ejecutamos la consulta. ExecuteNonQuery devuelve el número de filas afectadas
+                            int filasAfectadas = cmd.ExecuteNonQuery();
+                            if (filasAfectadas > 0)
+                            {
+                                // La actualización fue exitosa
+                                Trace.WriteLine("Registro actualizado correctamente.");
+                                return 1;
+                            }
+                            else
+                            {
+                                // No se encontró ningún registro con ese ID
+                                Trace.WriteLine("No se actualizó ningún registro.");
+                                return 0;
+                            }
+
+                        }
+
+                    }
+                    catch (MySqlException ex)
+                    {
+                        // Capturamos errores relacionados con MySQL
+                        Trace.WriteLine("Error relacionado con MySQL: " + ex.Message);
+
+                    }
+                    catch (InvalidOperationException ex)
+                    {
+                        // Capturamos errores de operación inválida en la conexión
+                        Trace.WriteLine("Error de operación inválida: " + ex.Message);
+                    }
+                    catch (Exception ex)
+                    {
+                        // Capturamos cualquier otro error inesperado
+                        Trace.WriteLine("Error inesperado: " + ex.Message);
+                    }
+
+                    return 2;
+                }
+            }
+            else return 3;
+                Trace.WriteLine("Obtenemos cantidad");
+            // Usamos 'using' para asegurar que la conexión se cierre correctamente
+            
+        }
+        /*[Authorize]
+        [ValidarTokenFilterController]*/
+        [HttpGet]
+        [Route("existeInstancia/{idA}/{idP}")]
+        public bool ExisteInstancia(int idA,int idP)
+        {
+            return ExisteArticuloID(idA,idP);
+        }
         private static bool ExisteArticuloID(int idA,int idP)
         {
-            string query = "SELECT count(*) FROM articulos WHERE IDARTICULO=@idArticulo AND IDPEDIDO=@idPedido";
+            string query = "SELECT count(*) FROM instanciaarticulos WHERE IDARTICULO=@idArticulo AND IDPEDIDO=@idPedido";
             using (var connection = new MySqlConnection(BDDController.ConnectionString))
             {
                 try
@@ -76,27 +171,29 @@ namespace ServidorApiRestaurante.Controllers
                 try
                 {
                     connection.Open();
-                    string query = "SELECT * FROM Articulos WHERE idArticulo = @idArticulo AND idPedido=@idPedido";
-
+                    string query = "SELECT * FROM InstanciaArticulos WHERE idArticulo = @idArticulo AND idPedido=@idPedido";
+                    Trace.WriteLine("Entramos get");
                     using (var cmd = new MySqlCommand(query, connection))
                     {
                         cmd.Parameters.AddWithValue("@idArticulo", idA);
                         cmd.Parameters.AddWithValue("@idPedido", idP);
+                        Trace.WriteLine("Entramos var cmd");
                         using (var reader = cmd.ExecuteReader())
                         {
                             if (reader.Read())
                             {
+                                Trace.WriteLine("Entramos loop");
                                 int idArt = reader.GetInt32("idArticulo");
                                 int IdPed = reader.GetInt32("idPedido");
                                 int Cantidad = reader.GetInt32("Cantidad");
-                                float Precio = reader.GetFloat("Precio");
-                                InstanciaArticulo art = new InstanciaArticulo(idArt,IdPed,Cantidad,Precio);
-
+                                InstanciaArticulo art = new InstanciaArticulo(idArt,IdPed,Cantidad);
+                                Trace.WriteLine("Salimos loop");
                                 return art;
                             }
                             else
                             {
-                                throw new Exception("Error al obtener articulo");
+                                Trace.WriteLine("No existe tal instancia");
+                                return null;
                             }
                         }
                     }
@@ -109,10 +206,10 @@ namespace ServidorApiRestaurante.Controllers
             }
         }
 
-        private static int InsertarRegistro(string connectionString, int idA, int idP, int cantidad, float precio)
+        private static int InsertarRegistro(string connectionString, int idA, int idP, int cantidad)
         {
             // Consulta SQL parametrizada para insertar datos en la tabla 'Articulos'
-            string insertQuery = "INSERT INTO InstanciaArticulos (idArticulo, idPedido, cantidad, precio) VALUES (@idArticulo, @idPedido, @cantidad, @precio)";
+            string insertQuery = "INSERT INTO InstanciaArticulos (idArticulo, idPedido, cantidad) VALUES (@idArticulo, @idPedido, @cantidad)";
 
             // Usamos 'using' para asegurar que la conexión se cierre correctamente
             using (var connection = new MySqlConnection(connectionString))
@@ -129,7 +226,6 @@ namespace ServidorApiRestaurante.Controllers
                         cmd.Parameters.AddWithValue("@idArticulo", idA);
                         cmd.Parameters.AddWithValue("@idPedido", idP);
                         cmd.Parameters.AddWithValue("@cantidad", cantidad);
-                        cmd.Parameters.AddWithValue("@precio", precio);
 
                         // Ejecutamos la consulta. ExecuteNonQuery devuelve el número de filas afectadas
                         int filasAfectadas = cmd.ExecuteNonQuery();
@@ -158,13 +254,19 @@ namespace ServidorApiRestaurante.Controllers
                 }
             }
         }
-        public static Pedido getPedido(int id)
+        /*
+        No son necesarios, cuando se necesite obtener el pedido/factura se hará con sus controllers directamente
+        [Authorize]
+        [ValidarTokenFilterController]
+        [HttpGet]
+        [Route("getInstancia/{idA}/{idP}")]
+        public dynamic getPedido(int id)
         {
             return PedidoController.getPedidoByID(id);
         }
-        public static Factura getFactura(int id)
+        public dynamic getFactura(int id)
         {
             return FacturaController.getFacturaByID(id);
-        }
+        }*/
     }
 }
