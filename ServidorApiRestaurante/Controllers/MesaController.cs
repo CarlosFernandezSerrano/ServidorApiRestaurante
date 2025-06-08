@@ -41,7 +41,15 @@ namespace ServidorApiRestaurante.Controllers
             return getFacturas(m);
 
         }
-
+        /*[Authorize]
+        [ValidarTokenFilterController]
+        [SoloAdminsFilterController]*/
+        [HttpGet]
+        [Route("ObtenerRestaurante/{id}")]
+        public dynamic ObtenerRestaurante(int id)
+        {
+            return getRestaurante(id);
+        }
         [Authorize]
         [ValidarTokenFilterController]
         [HttpPut]
@@ -62,7 +70,40 @@ namespace ServidorApiRestaurante.Controllers
             }
         }
         
+        private static int getRestaurante(int id)
+        {
+            using (var connection = new MySqlConnection(BDDController.ConnectionString))
+            {
+                try
+                {
+                    connection.Open();
+                    string query = "SELECT * FROM mesas WHERE id = @id";
 
+                    using (var cmd = new MySqlCommand(query, connection))
+                    {
+                        cmd.Parameters.AddWithValue("@id", id);
+                        using (var reader = cmd.ExecuteReader())
+                        {
+                            if (reader.Read())
+                            {
+                               int Id = reader.GetInt32("Restaurante_ID");
+                               return Id;
+                            }
+                            else
+                            {
+                                return 0;
+                                throw new Exception("Error al obtener articulo");
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Trace.WriteLine("Error al obtener articulo: " + ex.Message);
+                    throw new Exception("Error al obtener articulo: " + ex.Message);
+                }
+            }
+        }
         private static int EliminarMesaConID(string mesa_ID)
         {
             string query = "DELETE FROM Mesas WHERE ID = @id";

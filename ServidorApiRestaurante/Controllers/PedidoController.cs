@@ -115,12 +115,12 @@ namespace ServidorApiRestaurante.Controllers
         /*[Authorize]
         [ValidarTokenFilterController]*/
         [HttpPut]
-        [Route("cambiarEstado/{id}")]
-        public dynamic CambiarEstado(int id,string estado)
+        [Route("cambiarEstado")]
+        public dynamic CambiarEstado(Pedido p)
         {
             Trace.WriteLine("Llega a cambiar estado");
 
-            int num = updateEstado(id, estado);
+            int num = updateEstado(p.id, p.estado);
 
             if (num.Equals(1))
             {
@@ -149,6 +149,50 @@ namespace ServidorApiRestaurante.Controllers
                 return new { result = 0 };
             }
 
+        }
+
+        /*[Authorize]
+        [ValidarTokenFilterController]*/
+        [HttpGet]
+        [Route("maxID")]
+        public dynamic MaxID()
+        {
+            int max = getMax();
+            return max;
+        }
+
+        public static int getMax()
+        {
+            using (var connection = new MySqlConnection(BDDController.ConnectionString))
+            {
+                try
+                {
+                    connection.Open();
+                    string query = "select max(id) from pedidos";
+                    Trace.WriteLine("Conectado");
+                    using (var cmd = new MySqlCommand(query, connection))
+                    {
+                        using (var reader = cmd.ExecuteReader())
+                        {
+                            if (reader.Read())
+                            {
+                                Trace.WriteLine("Leído");
+                                int Id = reader.GetInt32("max(id)");
+                                return Id;
+                            }
+                            else
+                            {
+                                throw new Exception("Error al obtener factura");
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Trace.WriteLine("Error al obtener factura: " + ex.Message);
+                    return 0;
+                }
+            }
         }
         public static int deletePedido(int id)
         {

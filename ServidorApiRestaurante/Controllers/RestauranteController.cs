@@ -91,6 +91,16 @@ namespace ServidorApiRestaurante.Controllers
             return restaurante;
         }
 
+        /*[Authorize]
+        [ValidarTokenFilterController]*/
+        [HttpGet]
+        [Route("getNombrePorId/{id}")]
+        public dynamic ObtenerNombreConId(int id)
+        {
+            Restaurante restaurante = ObtenerRestaurantePorId(id);
+            return restaurante.Nombre;
+        }
+
         [Authorize]
         [ValidarTokenFilterController]
         [HttpPut]

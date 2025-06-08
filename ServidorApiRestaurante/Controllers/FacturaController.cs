@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using MySql.Data.MySqlClient;
 using Mysqlx.Datatypes;
+using Org.BouncyCastle.Crypto;
 using ServidorApiRestaurante.Models;
 using System.Data;
 using System.Diagnostics;
@@ -151,6 +152,49 @@ namespace ServidorApiRestaurante.Controllers
         {
             Factura f = getActiva(mesa);
             return f;
+        }
+        /*[Authorize]
+        [ValidarTokenFilterController]*/
+        [HttpGet]
+        [Route("maxID")]
+        public dynamic MaxID()
+        {
+            int max = getMax();
+            return max;
+        }
+
+        public static int getMax()
+        {
+                using (var connection = new MySqlConnection(BDDController.ConnectionString))
+                {
+                    try
+                    {
+                        connection.Open();
+                        string query = "select max(id) from facturas";
+                    Trace.WriteLine("Conectado");
+                    using (var cmd = new MySqlCommand(query, connection))
+                        {
+                            using (var reader = cmd.ExecuteReader())
+                            {
+                                if (reader.Read())
+                                {
+                                    Trace.WriteLine("Leído");
+                                    int Id = reader.GetInt32("max(id)");
+                                    return Id;
+                                }
+                                else
+                                {
+                                    throw new Exception("Error al obtener factura");
+                                }
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Trace.WriteLine("Error al obtener factura: " + ex.Message);
+                    return 0;
+                    }
+                }
         }
         public static Factura getActiva(int idMesa)
         {
@@ -308,7 +352,8 @@ namespace ServidorApiRestaurante.Controllers
                             }
                             else
                             {
-                                throw new Exception("Error al obtener factura");
+                                Trace.WriteLine("Error al obtener factura");
+                                return null;
                             }
                         }
                     }
