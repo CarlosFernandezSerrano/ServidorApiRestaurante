@@ -73,6 +73,114 @@ namespace ServidorApiRestaurante.Controllers
             return max;
         }
 
+        /*[Authorize]
+        [ValidarTokenFilterController]*/
+        [HttpDelete]
+        [Route("borrar/{id}")]
+        public dynamic borrarArticulo(int id)
+        {
+            Trace.WriteLine("Llega a borrar articulo x ID");
+            int num = deleteArticulo(id);
+
+            if (num.Equals(1))
+            {
+                return new { result = 1 };
+            }
+            else
+            {
+                return new { result = 0 };
+            }
+
+        }
+
+        /*[Authorize]
+        [ValidarTokenFilterController]*/
+        [HttpPut]
+        [Route("modificar")]
+        public dynamic modificarArticulo(Articulo art)
+        {
+            Trace.WriteLine("Llega a borrar articulo x ID");
+            int num = updateArticulo(art);
+
+            if (num.Equals(1))
+            {
+                return new { result = 1 };
+            }
+            else
+            {
+                return new { result = 0 };
+            }
+
+        }
+
+        public static int updateArticulo(Articulo a)
+        {
+            using (var connection = new MySqlConnection(BDDController.ConnectionString))
+            {
+                try
+                {
+                    connection.Open();
+                    string query = "UPDATE articulos SET precio=@precio, nombre=@nombre, categoria=@categoria WHERE ID = @id";
+
+                    using (var cmd = new MySqlCommand(query, connection))
+                    {
+                        // Asignación de valores a los parámetros
+                        cmd.Parameters.AddWithValue("@nombre", a.nombre);
+                        cmd.Parameters.AddWithValue("@precio", a.precio);
+                        cmd.Parameters.AddWithValue("@categoria", a.categoria);
+                        cmd.Parameters.AddWithValue("@id", a.id);
+
+                        // Ejecuta la sentencia y retorna el número de filas afectadas
+                        int rowsAffected = cmd.ExecuteNonQuery();
+
+                        if (rowsAffected > 0)
+                        {
+                            // La actualización fue exitosa
+                            Trace.WriteLine("Registro actualizado correctamente.");
+                            return 1;
+                        }
+                        else
+                        {
+                            // No se encontró ningún registro con ese ID
+                            Trace.WriteLine("No se actualizó ningún registro.");
+                            return 0;
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Trace.WriteLine("Error al actualizar trabajador: " + ex.Message);
+                    throw new Exception("Error al actualizar trabajador: " + ex.Message);
+                }
+            }
+        }
+
+        public static int deleteArticulo(int id)
+        {
+            string query = "DELETE FROM Articulos WHERE ID = @id";
+
+            using (var connection = new MySqlConnection(BDDController.ConnectionString))
+            {
+                try
+                {
+                    connection.Open();
+                    using (var cmd = new MySqlCommand(query, connection))
+                    {
+                        cmd.Parameters.AddWithValue("@id", id);
+
+                        int filasAfectadas = cmd.ExecuteNonQuery(); // Devuelve el número de filas eliminadas
+
+                        return filasAfectadas > 0 ? 1 : 0;
+                    }
+                }
+                catch (MySqlException ex)
+                {
+                    Trace.WriteLine("Error relacionado con MySQL: " + ex.Message);
+                    throw new Exception("Error al verificar la existencia del articulo: " + ex.Message);
+                }
+            }
+        }
+
         public static int getMax()
         {
             using (var connection = new MySqlConnection(BDDController.ConnectionString))
