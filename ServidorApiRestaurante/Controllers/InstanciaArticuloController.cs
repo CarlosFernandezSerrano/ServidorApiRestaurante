@@ -65,6 +65,53 @@ namespace ServidorApiRestaurante.Controllers
                 return new { result = 0 };
             }
         }
+
+        /*[Authorize]
+        [ValidarTokenFilterController]*/
+        [HttpDelete]
+        [Route("borrar/{pid}/{aid}")]
+        public dynamic borrarInstancia(int aid, int pid)
+        {
+            Trace.WriteLine("Llega a borrar mesa x ID");
+            int num = deleteInstancia(aid,pid);
+
+            if (num.Equals(1))
+            {
+                return new { result = 1 };
+            }
+            else
+            {
+                return new { result = 0 };
+            }
+        }
+
+        public static int deleteInstancia(int aid,int pid)
+        {
+            string query = "DELETE FROM instanciaarticulos WHERE IDpedido = @pid AND IDarticulo=@aid";
+
+            using (var connection = new MySqlConnection(BDDController.ConnectionString))
+            {
+                try
+                {
+                    connection.Open();
+                    using (var cmd = new MySqlCommand(query, connection))
+                    {
+                        cmd.Parameters.AddWithValue("@aid", aid);
+                        cmd.Parameters.AddWithValue("@pid", pid);
+
+                        int filasAfectadas = cmd.ExecuteNonQuery(); // Devuelve el número de filas eliminadas
+
+                        return filasAfectadas > 0 ? 1 : 0;
+                    }
+                }
+                catch (MySqlException ex)
+                {
+                    Trace.WriteLine("Error relacionado con MySQL: " + ex.Message);
+                    throw new Exception("Error al verificar la existencia del trabajador: " + ex.Message);
+                }
+            }
+        }
+
         private static int AumentarArticuloID(InstanciaArticulo art){
             // Consulta SQL parametrizada para insertar datos en la tabla 'Articulos'
             string insertQuery = "UPDATE InstanciaArticulos SET cantidad=@cantidad WHERE idArticulo=@idArticulo AND idPedido=@idPedido";
