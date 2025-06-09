@@ -90,7 +90,7 @@ namespace ServidorApiRestaurante.Controllers
             List<InstanciaArticulo> articulos=getListaArticulos(id);
             float total=0;
             foreach (InstanciaArticulo a in articulos){
-                total += new ArticuloController().ObtenerArticuloPorID(a.idArticulo).precio;
+                total += new ArticuloController().ObtenerArticuloPorID(a.idArticulo).precio*a.cantidad;
             }
             return total;
         }
