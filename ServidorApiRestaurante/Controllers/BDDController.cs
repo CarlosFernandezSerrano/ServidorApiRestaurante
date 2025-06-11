@@ -128,13 +128,15 @@ namespace ServidorApiRestaurante.Controllers
             );"; 
             CrearTabla(ConnectionString, consultaDeTablaReservas, "Reservas");
 
-            string consultaArticulos = @"CREATE TABLE IF NOT EXISTS articulos (
+            string consultaArticulos = @"CREATE TABLE articulos (
               id int(11) NOT NULL,
               precio float DEFAULT NULL,
               nombre varchar(64) DEFAULT NULL,
               categoria varchar(32) DEFAULT NULL,
+              imagen longblob DEFAULT NULL,
               PRIMARY KEY (id)
-            );INSERT IGNORE INTO articulos VALUES (1,5,'coca cola','bebidas'),(2,50,'Filete wagyu','Platos'),(3,10,'Fondue','postres'),(4,7,'Bravas','Entrantes'),(6,6,'string','string'),(15,0,'string','string'),(99,23,'Bistec','Platos');
+            )
+            ;INSERT IGNORE INTO articulos VALUES (1,5,'coca cola','bebidas'),(2,50,'Filete wagyu','Platos'),(3,10,'Fondue','postres'),(4,7,'Bravas','Entrantes'),(6,6,'string','string'),(15,0,'string','string'),(99,23,'Bistec','Platos');
             ";
             CrearTabla(ConnectionString, consultaArticulos, "Articulos");
 
