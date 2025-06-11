@@ -151,6 +151,7 @@ namespace ServidorApiRestaurante.Controllers
 );
 ";
             CrearTabla(ConnectionString, consultaFacturas, "Facturas");
+
             string consultaPedidos = @"CREATE TABLE IF NOT EXISTS pedidos (
   factura int(11) DEFAULT NULL,
   id int(11) NOT NULL,
@@ -159,7 +160,7 @@ namespace ServidorApiRestaurante.Controllers
   mesa int(11) DEFAULT NULL,
   PRIMARY KEY (id),
   KEY mesa (mesa),
-  KEY factura (factura),
+  KEY factura (factura)
   
 );
 ";
@@ -172,7 +173,7 @@ namespace ServidorApiRestaurante.Controllers
   idPedido int(11) NOT NULL,
   cantidad int(11) DEFAULT NULL,
   PRIMARY KEY (idArticulo,idPedido),
-  KEY idPedido (idPedido),
+  KEY idPedido (idPedido)
   
 );
 
