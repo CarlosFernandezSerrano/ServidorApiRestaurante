@@ -148,6 +148,160 @@ namespace ServidorApiRestaurante.Controllers
         {
             return existsArticuloN(nombre);
         }
+
+        /*[Authorize]
+        [ValidarTokenFilterController]*/
+        /*[HttpPut("{id}/imagen")]
+        public async Task<IActionResult> UpdateArticuloImage(int id, IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+                return BadRequest("No file uploaded");
+
+            byte[] imageBytes;
+            using (var ms = new MemoryStream())
+            {
+                await file.CopyToAsync(ms);
+                imageBytes = ms.ToArray();
+            }
+
+            using var connection = new MySqlConnection(BDDController.ConnectionString);
+            await connection.OpenAsync();
+
+            var cmd = new MySqlCommand("UPDATE articulos SET Imagen = @imagen WHERE Id = @id", connection);
+            cmd.Parameters.AddWithValue("@imagen", imageBytes);
+            cmd.Parameters.AddWithValue("@id", id);
+
+            int rowsAffected = await cmd.ExecuteNonQueryAsync();
+
+            if (rowsAffected == 0)
+                return NotFound("Artículo no encontrado");
+
+            return Ok("Imagen actualizada");
+        }
+        */
+        /*[Authorize]
+        [ValidarTokenFilterController]*/
+        [HttpPost("{id}/actualizar-imagen")]
+        public async Task<IActionResult> ActualizarImagen(int id, IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+                return BadRequest("No se recibió ningún archivo");
+
+            byte[] imageBytes;
+            using (var ms = new MemoryStream())
+            {
+                await file.CopyToAsync(ms);
+                imageBytes = ms.ToArray();
+            }
+
+            using var connection = new MySqlConnection(BDDController.ConnectionString);
+            await connection.OpenAsync();
+
+            var cmd = new MySqlCommand("UPDATE articulos SET Imagen = @imagen WHERE Id = @id", connection);
+            cmd.Parameters.AddWithValue("@imagen", imageBytes);
+            cmd.Parameters.AddWithValue("@id", id);
+
+            int affectedRows = await cmd.ExecuteNonQueryAsync();
+
+            if (affectedRows == 0)
+                return NotFound("Artículo no encontrado");
+
+            return Ok("Imagen actualizada correctamente");
+        }
+
+        /*[Authorize]
+        [ValidarTokenFilterController]*/
+        [HttpGet("image/{id}")]
+        public async Task<IActionResult> GetImage(int id)
+        {
+            using var connection = new MySqlConnection(BDDController.ConnectionString);
+            await connection.OpenAsync();
+
+            var cmd = new MySqlCommand("SELECT imagen FROM articulos WHERE Id = @id", connection);
+            cmd.Parameters.AddWithValue("@id", id);
+
+            var reader = await cmd.ExecuteReaderAsync();
+            if (await reader.ReadAsync())
+            {
+                var imageData = (byte[])reader["imagen"];
+                return File(imageData, "image/jpeg");
+            }
+
+            return NotFound();
+        }
+
+        /*[Authorize]
+        [ValidarTokenFilterController]*/
+        /*[HttpPost("upload")]
+        public async Task<IActionResult> UploadImage(IFormFile file, int articleId)
+        {
+            if (file == null || file.Length == 0)
+                return BadRequest("No file uploaded");
+
+            using var ms = new MemoryStream();
+            await file.CopyToAsync(ms);
+            var imageBytes = ms.ToArray();
+
+            using var connection = new MySqlConnection("https://localhost:7233/articulo/upload");
+            await connection.OpenAsync();
+
+            var cmd = new MySqlCommand("INSERT INTO Images (Name, ImageData, idArticulo) VALUES (@name, @data, @articleId)", connection);
+            cmd.Parameters.AddWithValue("@name", file.FileName);
+            cmd.Parameters.AddWithValue("@data", imageBytes);
+            cmd.Parameters.AddWithValue("@articleId", articleId);
+            await cmd.ExecuteNonQueryAsync();
+
+            return Ok("Image uploaded");
+        }
+        /*[Authorize]
+        [ValidarTokenFilterController]
+        [HttpGet("image/{id}")]
+        public async Task<IActionResult> GetImage(int id)
+        {
+            using var connection = new MySqlConnection(BDDController.ConnectionString);
+            await connection.OpenAsync();
+
+            var cmd = new MySqlCommand("SELECT ImageData FROM Images WHERE Id = @id", connection);
+            cmd.Parameters.AddWithValue("@id", id);
+
+            var reader = await cmd.ExecuteReaderAsync();
+            if (await reader.ReadAsync())
+            {
+                var imageData = (byte[])reader["ImageData"];
+                return File(imageData, "image/jpeg");
+            }
+
+            return NotFound();
+        }
+
+        /*[Authorize]
+        [ValidarTokenFilterController]
+        [HttpGet("imageExiste/{id}")]
+        public dynamic existsImage(int id)
+        {
+            string query = "SELECT count(*) FROM images WHERE ID=@id";
+            using (var connection = new MySqlConnection(BDDController.ConnectionString))
+            {
+                try
+                {
+                    connection.Open();
+                    using (var cmd = new MySqlCommand(query, connection))
+                    {
+                        cmd.Parameters.AddWithValue("@id", id);
+
+                        int count = Convert.ToInt32(cmd.ExecuteScalar()); // Obtiene el número de coincidencias
+                        return count > 0; // Si es mayor a 0, el articulo existe
+                    }
+                }
+                catch (MySqlException ex)
+                {
+                    Trace.WriteLine("Error relacionado con MySQL: " + ex.Message);
+                    throw new Exception("Error al verificar la existencia del articulo: " + ex.Message);
+                }
+            }
+        }*/
+
+
         private static bool existsArticuloID(int id)
         {
             string query = "SELECT count(*) FROM articulos WHERE ID=@id";
