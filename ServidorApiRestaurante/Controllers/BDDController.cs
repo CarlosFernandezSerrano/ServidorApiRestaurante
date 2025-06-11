@@ -159,11 +159,12 @@ namespace ServidorApiRestaurante.Controllers
               mesa int(11) DEFAULT NULL,
               PRIMARY KEY (id),
               KEY mesa (mesa),
-              KEY factura (factura),
-              FOREIGN KEY (mesa) REFERENCES mesas(ID) ON DELETE CASCADE,
-              FOREIGN KEY (factura) REFERENCES facturas(id) ON DELETE CASCADE
+              KEY factura (factura)
+              
             );
-            ";
+            "; //
+               ////FOREIGN KEY (mesa) REFERENCES mesas(ID) ON DELETE CASCADE,
+               //FOREIGN KEY (factura) REFERENCES facturas(id) ON DELETE CASCADE
             CrearTabla(ConnectionString, consultaPedidos, "Pedidos");
 
             string consultaInstancias = @"CREATE TABLE IF NOT EXISTS instanciaarticulos (
@@ -171,11 +172,12 @@ namespace ServidorApiRestaurante.Controllers
               idPedido int(11) NOT NULL,
               cantidad int(11) DEFAULT NULL,
               PRIMARY KEY (idArticulo,idPedido),
-              KEY idPedido (idPedido),
-              FOREIGN KEY (idArticulo) REFERENCES articulos(id) ON DELETE CASCADE,
-              FOREIGN KEY (idPedido) REFERENCES pedidos(id) ON DELETE CASCADE
+              KEY idPedido (idPedido)
+              
             );
             ";
+            //FOREIGN KEY (idArticulo) REFERENCES articulos(id) ON DELETE CASCADE,
+            //FOREIGN KEY(idPedido) REFERENCES pedidos(id) ON DELETE CASCADE
             CrearTabla(ConnectionString, consultaInstancias, "InstanciaArticulos");
         }
 
