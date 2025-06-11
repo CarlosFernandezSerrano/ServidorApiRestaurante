@@ -135,8 +135,10 @@ namespace ServidorApiRestaurante.Controllers
               precio float DEFAULT NULL,
               nombre varchar(64) DEFAULT NULL,
               categoria varchar(32) DEFAULT NULL,
+              imagen longblob DEFAULT NULL,
               PRIMARY KEY (id)
-            );INSERT IGNORE INTO articulos VALUES (1,5,'coca cola','bebidas'),(2,50,'Filete wagyu','Platos'),(3,10,'Fondue','postres'),(4,7,'Bravas','Entrantes'),(6,6,'string','string'),(15,0,'string','string'),(99,23,'Bistec','Platos');
+            )
+            ;INSERT IGNORE INTO articulos VALUES (1,5,'coca cola','bebidas'),(2,50,'Filete wagyu','Platos'),(3,10,'Fondue','postres'),(4,7,'Bravas','Entrantes'),(6,6,'string','string'),(15,0,'string','string'),(99,23,'Bistec','Platos');
             ";
             CrearTabla(ConnectionString, consultaArticulos, "Articulos");
 
@@ -173,7 +175,6 @@ namespace ServidorApiRestaurante.Controllers
               CONSTRAINT instanciaarticulos_ibfk_3 FOREIGN KEY (idArticulo) REFERENCES articulos (id) ON DELETE CASCADE,
               CONSTRAINT instanciaarticulos_ibfk_4 FOREIGN KEY (idPedido) REFERENCES pedidos (id) ON DELETE CASCADE
             );
-
             ";
             CrearTabla(ConnectionString, consultaInstancias, "InstanciaArticulos");
         }
