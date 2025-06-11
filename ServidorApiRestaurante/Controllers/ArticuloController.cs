@@ -13,8 +13,8 @@ namespace ServidorApiRestaurante.Controllers
     [Route("articulo")]
     public class ArticuloController : ControllerBase
     {
-        [Authorize]
-        [ValidarTokenFilterController]
+        /*[Authorize]
+        [ValidarTokenFilterController]*/
         [HttpPost]
         [Route("crearArticulo")]
         public dynamic CrearArticulo(Articulo articulo)
@@ -25,7 +25,7 @@ namespace ServidorApiRestaurante.Controllers
             Trace.WriteLine("articulo.categoria " + articulo.categoria);
 
             // Compruebo si existe el trabajador antes de intentar insertarlo, para que no se creen IDs vac�os.
-            if (ExisteArticuloID(articulo.id))
+            if (ExisteArticuloID(articulo.id)||existeArticuloNombre(articulo.nombre))
             {
                 return new { result = 2 };
             }
@@ -35,8 +35,8 @@ namespace ServidorApiRestaurante.Controllers
                 return new { result = num };
             }
         }
-        [Authorize]
-        [ValidarTokenFilterController]
+        /*[Authorize]
+        [ValidarTokenFilterController]*/
         [HttpGet]
         [Route("getArticulo/{id}")]
         public dynamic ObtenerArticuloPorID(int id)
@@ -44,8 +44,17 @@ namespace ServidorApiRestaurante.Controllers
             Articulo art = getArticuloByID(id);
             return art;
         }
-        [Authorize]
-        [ValidarTokenFilterController]
+        /*[Authorize]
+        [ValidarTokenFilterController]*/
+        [HttpGet]
+        [Route("getArticuloNombre/{nombre}")]
+        public dynamic ObtenerArticuloPorNombre(string nombre)
+        {
+            Articulo art = getArticuloByNombre(nombre);
+            return art;
+        }
+        /*[Authorize]
+        [ValidarTokenFilterController]*/
         [HttpGet]
         [Route("getNumArticulos")]
         public dynamic ObtenerNumArticulos()
@@ -54,8 +63,8 @@ namespace ServidorApiRestaurante.Controllers
             return num;
         }
 
-        [Authorize]
-        [ValidarTokenFilterController]
+        /*[Authorize]
+        [ValidarTokenFilterController]*/
         [HttpGet]
         [Route("getArticulosCat/{cat}")]
         public dynamic ObtenerArticulosCat(string cat)
@@ -63,8 +72,8 @@ namespace ServidorApiRestaurante.Controllers
             List<Articulo> lista = GetArticulosCat(cat);
             return lista;
         }
-        [Authorize]
-        [ValidarTokenFilterController]
+        /*[Authorize]
+        [ValidarTokenFilterController]*/
         [HttpGet]
         [Route("maxID")]
         public dynamic MaxID()
@@ -73,8 +82,8 @@ namespace ServidorApiRestaurante.Controllers
             return max;
         }
 
-        [Authorize]
-        [ValidarTokenFilterController]
+        /*[Authorize]
+        [ValidarTokenFilterController]*/
         [HttpDelete]
         [Route("borrar/{id}")]
         public dynamic borrarArticulo(int id)
@@ -93,8 +102,8 @@ namespace ServidorApiRestaurante.Controllers
 
         }
 
-        [Authorize]
-        [ValidarTokenFilterController]
+        /*[Authorize]
+        [ValidarTokenFilterController]*/
         [HttpPut]
         [Route("modificar")]
         public dynamic modificarArticulo(Articulo art)
@@ -112,9 +121,9 @@ namespace ServidorApiRestaurante.Controllers
             }
 
         }
-        [Authorize]
-        [ValidarTokenFilterController]
-        [HttpPut]
+        /*[Authorize]
+        [ValidarTokenFilterController]*/
+        [HttpGet]
         [Route("obtenerTodos")]
         public dynamic obtenerTodosArticulos()
         {
@@ -141,7 +150,7 @@ namespace ServidorApiRestaurante.Controllers
         }
         private static bool existsArticuloID(int id)
         {
-            string query = "SELECT count(*) FROM pedidos WHERE ID=@id";
+            string query = "SELECT count(*) FROM articulos WHERE ID=@id";
             using (var connection = new MySqlConnection(BDDController.ConnectionString))
             {
                 try
@@ -164,7 +173,7 @@ namespace ServidorApiRestaurante.Controllers
         }
         private static bool existsArticuloN(string nombre)
         {
-            string query = "SELECT count(*) FROM pedidos WHERE nombre=@nombre";
+            string query = "SELECT count(*) FROM articulos WHERE nombre=@nombre";
             using (var connection = new MySqlConnection(BDDController.ConnectionString))
             {
                 try
@@ -444,7 +453,44 @@ namespace ServidorApiRestaurante.Controllers
                 }
             }
         }
+        private static Articulo getArticuloByNombre(string nombre)
+        {
+            using (var connection = new MySqlConnection(BDDController.ConnectionString))
+            {
+                try
+                {
+                    connection.Open();
+                    string query = "SELECT * FROM Articulos WHERE nombre = @nombre";
 
+                    using (var cmd = new MySqlCommand(query, connection))
+                    {
+                        cmd.Parameters.AddWithValue("@nombre", nombre);
+                        using (var reader = cmd.ExecuteReader())
+                        {
+                            if (reader.Read())
+                            {
+                                int Id = reader.GetInt32("ID");
+                                string Nombre = reader.GetString("Nombre");
+                                float Precio = reader.GetFloat("Precio");
+                                string Categoria = reader.GetString("Categoria");
+                                Articulo art = new Articulo(Id, Nombre, Precio, Categoria);
+
+                                return art;
+                            }
+                            else
+                            {
+                                throw new Exception("Error al obtener articulo");
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Trace.WriteLine("Error al obtener articulo: " + ex.Message);
+                    throw new Exception("Error al obtener articulo: " + ex.Message);
+                }
+            }
+        }
         private static int InsertarRegistro(string connectionString, int id, string nombre, float precio, string categoria)
         {
             // Consulta SQL parametrizada para insertar datos en la tabla 'Articulos'
