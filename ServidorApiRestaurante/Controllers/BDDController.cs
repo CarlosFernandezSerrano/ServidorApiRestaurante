@@ -138,7 +138,7 @@ namespace ServidorApiRestaurante.Controllers
               imagen longblob DEFAULT NULL,
               PRIMARY KEY (id)
             )
-            ;INSERT INTO articulos VALUES (1,5,'coca cola','bebidas'),(2,50,'Filete wagyu','Platos'),(3,10,'Fondue','postres'),(4,7,'Bravas','Entrantes'),(6,6,'string','string'),(15,0,'string','string'),(99,23,'Bistec','Platos');
+            ;INSERT INTO articulos (id, precio, nombre, categoria) VALUES (1,5,'coca cola','bebidas'),(2,50,'Filete wagyu','Platos'),(3,10,'Fondue','postres'),(4,7,'Bravas','Entrantes'),(6,6,'string','string'),(15,0,'string','string'),(99,23,'Bistec','Platos');
             ";
             CrearTabla(ConnectionString, consultaArticulos, "Articulos");
 
