@@ -146,25 +146,25 @@ namespace ServidorApiRestaurante.Controllers
   id int(11) NOT NULL,
   total float DEFAULT NULL,
   activa int(11) DEFAULT NULL,
-  mesa int(11) NOT NULL,
+  mesa int(11) DEFAULT NULL,
   PRIMARY KEY (id)
 );
 ";
             CrearTabla(ConnectionString, consultaFacturas, "Facturas");
-
             string consultaPedidos = @"CREATE TABLE IF NOT EXISTS pedidos (
-  factura int(11) NOT NULL,
+  factura int(11) DEFAULT NULL,
   id int(11) NOT NULL,
   fecha varchar(10) DEFAULT NULL,
   estado varchar(12) DEFAULT NULL,
-  mesa int(11) NOT NULL,
+  mesa int(11) DEFAULT NULL,
   PRIMARY KEY (id),
   KEY mesa (mesa),
   KEY factura (factura),
-  CONSTRAINT pedidos_ibfk_3 FOREIGN KEY (mesa) REFERENCES mesas(ID) ON DELETE CASCADE,
-  CONSTRAINT pedidos_ibfk_4 FOREIGN KEY (factura) REFERENCES facturas(id) ON DELETE CASCADE
+  
 );
 ";
+    //        CONSTRAINT pedidos_ibfk_3 FOREIGN KEY(mesa) REFERENCES mesas(ID) ON DELETE CASCADE,
+  //CONSTRAINT pedidos_ibfk_4 FOREIGN KEY(factura) REFERENCES facturas(id) ON DELETE CASCADE
             CrearTabla(ConnectionString, consultaPedidos, "Pedidos");
 
             string consultaInstancias = @"CREATE TABLE IF NOT EXISTS instanciaarticulos (
@@ -173,11 +173,12 @@ namespace ServidorApiRestaurante.Controllers
   cantidad int(11) DEFAULT NULL,
   PRIMARY KEY (idArticulo,idPedido),
   KEY idPedido (idPedido),
-  CONSTRAINT instanciaarticulos_ibfk_3 FOREIGN KEY (idArticulo) REFERENCES articulos(id) ON DELETE CASCADE,
-  CONSTRAINT instanciaarticulos_ibfk_4 FOREIGN KEY (idPedido) REFERENCES pedidos(id) ON DELETE CASCADE
+  
 );
 
 ";
+            //CONSTRAINT instanciaarticulos_ibfk_3 FOREIGN KEY (idArticulo) REFERENCES articulos (id) ON DELETE CASCADE,
+            //CONSTRAINT instanciaarticulos_ibfk_4 FOREIGN KEY(idPedido) REFERENCES pedidos(id) ON DELETE CASCADE
             CrearTabla(ConnectionString, consultaInstancias, "InstanciaArticulos");
         }
 
