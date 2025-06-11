@@ -214,20 +214,51 @@ namespace ServidorApiRestaurante.Controllers
         [HttpGet("image/{id}")]
         public async Task<IActionResult> GetImage(int id)
         {
+            Trace.WriteLine("Prueba get1");
             using var connection = new MySqlConnection(BDDController.ConnectionString);
             await connection.OpenAsync();
-
+            Trace.WriteLine("Prueba get2");
             var cmd = new MySqlCommand("SELECT imagen FROM articulos WHERE Id = @id", connection);
             cmd.Parameters.AddWithValue("@id", id);
-
+            Trace.WriteLine("Prueba get3");
             var reader = await cmd.ExecuteReaderAsync();
+            Trace.WriteLine("Prueba get32");
             if (await reader.ReadAsync())
             {
+                Trace.WriteLine("Prueba get4");
                 var imageData = (byte[])reader["imagen"];
+                Trace.WriteLine("Prueba get5");
                 return File(imageData, "image/jpeg");
             }
 
             return NotFound();
+        }
+
+        /*[Authorize]
+        [ValidarTokenFilterController]*/
+        [HttpGet("tieneImagen/{id}")]
+        public bool tieneImagen(int id)
+        {
+            string query = "SELECT count(*) FROM articulos WHERE imagen IS NOT NULL and ID=@id";
+            using (var connection = new MySqlConnection(BDDController.ConnectionString))
+            {
+                try
+                {
+                    connection.Open();
+                    using (var cmd = new MySqlCommand(query, connection))
+                    {
+                        cmd.Parameters.AddWithValue("@id", id);
+
+                        int count = Convert.ToInt32(cmd.ExecuteScalar()); // Obtiene el número de coincidencias
+                        return count > 0; // Si es mayor a 0, el articulo existe
+                    }
+                }
+                catch (MySqlException ex)
+                {
+                    Trace.WriteLine("Error relacionado con MySQL: " + ex.Message);
+                    throw new Exception("Error al verificar la existencia del articulo: " + ex.Message);
+                }
+            }
         }
 
         /*[Authorize]
