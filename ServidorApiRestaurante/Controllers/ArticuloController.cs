@@ -387,7 +387,7 @@ namespace ServidorApiRestaurante.Controllers
                 try
                 {
                     connection.Open();
-                    string query = "SELECT * FROM Articulos";
+                    string query = "SELECT * FROM articulos";
 
                     using (var cmd = new MySqlCommand(query, connection))
                     {
@@ -459,7 +459,7 @@ namespace ServidorApiRestaurante.Controllers
 
         public static int deleteArticulo(int id)
         {
-            string query = "DELETE FROM Articulos WHERE ID = @id";
+            string query = "DELETE FROM articulos WHERE ID = @id";
 
             using (var connection = new MySqlConnection(BDDController.ConnectionString))
             {
@@ -524,7 +524,7 @@ namespace ServidorApiRestaurante.Controllers
                 try
                 {
                     connection.Open();
-                    string query = "SELECT * FROM Articulos WHERE categoria = @categoria";
+                    string query = "SELECT * FROM articulos WHERE categoria = @categoria";
 
                     using (var cmd = new MySqlCommand(query, connection))
                     {
@@ -607,7 +607,7 @@ namespace ServidorApiRestaurante.Controllers
                 try
                 {
                     connection.Open();
-                    string query = "SELECT * FROM Articulos WHERE id = @id";
+                    string query = "SELECT * FROM articulos WHERE id = @id";
 
                     using (var cmd = new MySqlCommand(query, connection))
                     {
@@ -645,7 +645,7 @@ namespace ServidorApiRestaurante.Controllers
                 try
                 {
                     connection.Open();
-                    string query = "SELECT * FROM Articulos WHERE nombre = @nombre";
+                    string query = "SELECT * FROM articulos WHERE nombre = @nombre";
 
                     using (var cmd = new MySqlCommand(query, connection))
                     {
@@ -679,7 +679,7 @@ namespace ServidorApiRestaurante.Controllers
         private static int InsertarRegistro(string connectionString, int id, string nombre, float precio, string categoria)
         {
             // Consulta SQL parametrizada para insertar datos en la tabla 'Articulos'
-            string insertQuery = "INSERT INTO Articulos (id, nombre, precio, categoria) VALUES (@id, @nombre, @precio, @categoria)";
+            string insertQuery = "INSERT INTO articulos (id, nombre, precio, categoria) VALUES (@id, @nombre, @precio, @categoria)";
 
             // Usamos 'using' para asegurar que la conexi�n se cierre correctamente
             using (var connection = new MySqlConnection(connectionString))
