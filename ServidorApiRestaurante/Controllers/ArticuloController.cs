@@ -218,7 +218,7 @@ namespace ServidorApiRestaurante.Controllers
             using var connection = new MySqlConnection(BDDController.ConnectionString);
             await connection.OpenAsync();
             Trace.WriteLine("Prueba get2");
-            var cmd = new MySqlCommand("SELECT imagen FROM articulos WHERE Id = @id", connection);
+            var cmd = new MySqlCommand("SELECT imagen FROM articulos WHERE id = @id", connection);
             cmd.Parameters.AddWithValue("@id", id);
             Trace.WriteLine("Prueba get3");
             var reader = await cmd.ExecuteReaderAsync();
