@@ -87,7 +87,7 @@ namespace ServidorApiRestaurante.Controllers
 
         public static int deleteInstancia(int aid,int pid)
         {
-            string query = "DELETE FROM instanciaarticulos WHERE IDpedido = @pid AND IDarticulo=@aid";
+            string query = "DELETE FROM instanciaarticulos WHERE idPedido = @pid AND idArticulo=@aid";
 
             using (var connection = new MySqlConnection(BDDController.ConnectionString))
             {
@@ -114,7 +114,7 @@ namespace ServidorApiRestaurante.Controllers
 
         private static int AumentarArticuloID(InstanciaArticulo art){
             // Consulta SQL parametrizada para insertar datos en la tabla 'Articulos'
-            string insertQuery = "UPDATE InstanciaArticulos SET cantidad=@cantidad WHERE idArticulo=@idArticulo AND idPedido=@idPedido";
+            string insertQuery = "UPDATE instanciaarticulos SET cantidad=@cantidad WHERE idArticulo=@idArticulo AND idPedido=@idPedido";
             Trace.WriteLine("Entramos aumentar");
             InstanciaArticulo insta = getInstanciaByID(art.idArticulo, art.idPedido);
             if (insta != null)
@@ -188,7 +188,7 @@ namespace ServidorApiRestaurante.Controllers
         }
         private static bool ExisteArticuloID(int idA,int idP)
         {
-            string query = "SELECT count(*) FROM instanciaarticulos WHERE IDARTICULO=@idArticulo AND IDPEDIDO=@idPedido";
+            string query = "SELECT count(*) FROM instanciaarticulos WHERE idArticulo=@idArticulo AND idPedido=@idPedido";
             using (var connection = new MySqlConnection(BDDController.ConnectionString))
             {
                 try
@@ -218,7 +218,7 @@ namespace ServidorApiRestaurante.Controllers
                 try
                 {
                     connection.Open();
-                    string query = "SELECT * FROM InstanciaArticulos WHERE idArticulo = @idArticulo AND idPedido=@idPedido";
+                    string query = "SELECT * FROM instanciaarticulos WHERE idArticulo = @idArticulo AND idPedido=@idPedido";
                     Trace.WriteLine("Entramos get");
                     using (var cmd = new MySqlCommand(query, connection))
                     {
@@ -256,7 +256,7 @@ namespace ServidorApiRestaurante.Controllers
         private static int InsertarRegistro(string connectionString, int idA, int idP, int cantidad)
         {
             // Consulta SQL parametrizada para insertar datos en la tabla 'Articulos'
-            string insertQuery = "INSERT INTO InstanciaArticulos (idArticulo, idPedido, cantidad) VALUES (@idArticulo, @idPedido, @cantidad)";
+            string insertQuery = "INSERT INTO instanciaarticulos (idArticulo, idPedido, cantidad) VALUES (@idArticulo, @idPedido, @cantidad)";
 
             // Usamos 'using' para asegurar que la conexión se cierre correctamente
             using (var connection = new MySqlConnection(connectionString))

@@ -233,7 +233,7 @@ namespace ServidorApiRestaurante.Controllers
         }
         private static int deletePedidos(string idF)
         {
-            string query = "DELETE FROM Pedidos WHERE factura = @id";
+            string query = "DELETE FROM pedidos WHERE factura = @id";
 
             using (var connection = new MySqlConnection(BDDController.ConnectionString))
             {
@@ -263,7 +263,7 @@ namespace ServidorApiRestaurante.Controllers
                 try
                 {
                     connection.Open();
-                    string query = "UPDATE facturas SET activa = @activa WHERE ID = @id";
+                    string query = "UPDATE facturas SET activa = @activa WHERE id = @id";
 
                     using (var cmd = new MySqlCommand(query, connection))
                     {
@@ -304,7 +304,7 @@ namespace ServidorApiRestaurante.Controllers
         }
         private static bool ExisteFacturaID(int id)
         {
-            string query = "SELECT count(*) FROM facturas WHERE ID=@id";
+            string query = "SELECT count(*) FROM facturas WHERE id=@id";
             using (var connection = new MySqlConnection(BDDController.ConnectionString))
             {
                 try
@@ -375,7 +375,7 @@ namespace ServidorApiRestaurante.Controllers
             }
             else activa = 0;
                 // Consulta SQL parametrizada para insertar datos en la tabla 'Facturas'
-                string insertQuery = "INSERT INTO Facturas (id, total,activa,mesa) VALUES (@id, @total,@activa,@mesa)";
+                string insertQuery = "INSERT INTO facturas (id, total,activa,mesa) VALUES (@id, @total,@activa,@mesa)";
 
             // Usamos 'using' para asegurar que la conexión se cierre correctamente
             using (var connection = new MySqlConnection(connectionString))
@@ -431,7 +431,7 @@ namespace ServidorApiRestaurante.Controllers
                 try
                 {
                     connection.Open();
-                    string query = "SELECT * FROM Pedidos WHERE factura = @id";
+                    string query = "SELECT * FROM pedidos WHERE factura = @id";
 
                     using (var cmd = new MySqlCommand(query, connection))
                     {

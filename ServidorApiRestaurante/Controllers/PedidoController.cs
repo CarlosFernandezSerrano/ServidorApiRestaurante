@@ -53,7 +53,7 @@ namespace ServidorApiRestaurante.Controllers
         }
         private static bool ExistePedidoID(int id)
         {
-            string query = "SELECT count(*) FROM pedidos WHERE ID=@id";
+            string query = "SELECT count(*) FROM pedidos WHERE id=@id";
             using (var connection = new MySqlConnection(BDDController.ConnectionString))
             {
                 try
@@ -168,7 +168,7 @@ namespace ServidorApiRestaurante.Controllers
                 try
                 {
                     connection.Open();
-                    string query = "select max(id) from pedidos";
+                    string query = "SELECT max(id) FROM pedidos";
                     Trace.WriteLine("Conectado");
                     using (var cmd = new MySqlCommand(query, connection))
                     {
@@ -196,7 +196,7 @@ namespace ServidorApiRestaurante.Controllers
         }
         public static int deletePedido(int id)
         {
-            string query = "DELETE FROM Pedidos WHERE ID = @id";
+            string query = "DELETE FROM pedidos WHERE id = @id";
 
             using (var connection = new MySqlConnection(BDDController.ConnectionString))
             {
@@ -226,7 +226,7 @@ namespace ServidorApiRestaurante.Controllers
                 try
                 {
                     connection.Open();
-                    string query = "UPDATE pedidos SET estado = @estado WHERE ID = @id";
+                    string query = "UPDATE pedidos SET estado = @estado WHERE id = @id";
 
                     using (var cmd = new MySqlCommand(query, connection))
                     {
@@ -266,7 +266,7 @@ namespace ServidorApiRestaurante.Controllers
                 try
                 {
                     connection.Open();
-                    string query = "SELECT * FROM Pedidos";
+                    string query = "SELECT * FROM pedidos";
 
                     using (var cmd = new MySqlCommand(query, connection))
                     {
@@ -324,7 +324,7 @@ namespace ServidorApiRestaurante.Controllers
                 try
                 {
                     connection.Open();
-                    string query = "SELECT * FROM Pedidos WHERE id = @id";
+                    string query = "SELECT * FROM pedidos WHERE id = @id";
 
                     using (var cmd = new MySqlCommand(query, connection))
                     {
@@ -359,7 +359,7 @@ namespace ServidorApiRestaurante.Controllers
         private static int InsertarRegistro(string connectionString, int id, string fecha, int mesa,string estado, int factura)
         {
             // Consulta SQL parametrizada para insertar datos en la tabla 'Articulos'
-            string insertQuery = "INSERT INTO Pedidos (id, fecha, mesa, estado, factura) VALUES (@id, @fecha, @mesa, @estado, @factura)";
+            string insertQuery = "INSERT INTO pedidos (id, fecha, mesa, estado, factura) VALUES (@id, @fecha, @mesa, @estado, @factura)";
 
             // Usamos 'using' para asegurar que la conexión se cierre correctamente
             using (var connection = new MySqlConnection(connectionString))
@@ -416,7 +416,7 @@ namespace ServidorApiRestaurante.Controllers
                 try
                 {
                     connection.Open();
-                    string query = "SELECT * FROM InstanciaArticulos WHERE IDPedido = @id";
+                    string query = "SELECT * FROM instanciaarticulos WHERE idPedido = @id";
 
                     using (var cmd = new MySqlCommand(query, connection))
                     {
